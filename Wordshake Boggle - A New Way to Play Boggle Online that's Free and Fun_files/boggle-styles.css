@@ -1,0 +1,349 @@
+:root {
+	--hue: 209;
+}
+
+
+.three-games::before, 
+.four-games::before {
+	display: block;
+}
+
+.three-games::before {
+	content: '3x3';
+}
+
+.four-games::before {
+	content: '4x4';
+}
+
+.earned {
+	display: none;
+	position: absolute;
+	left: 0;
+}
+
+#friendUrl {
+	font-size: 10px;
+    line-height: 1;
+    color: var(--color);
+    border: none;
+    background: #fff;
+    padding: 8px;
+    text-decoration: none;
+    border-radius: 6px;
+    cursor: pointer;
+    -webkit-appearance: none;
+    width: 100%;
+    font-family: 'Averta';
+    display: none;
+    margin-bottom: 8px;
+}
+
+.play-again {
+	margin-bottom: 16px;
+	line-height: 0;
+	display: block;
+	color: #fff;
+	font-size: 12px;
+	opacity: 0;
+}
+
+.above-board {
+	flex-direction: row;
+	justify-content: center;
+	align-items: flex-end;
+}
+.num-words-found {
+	margin: 0;
+}
+.button.go.active {
+	background: var(--wordshake);
+}
+
+.button.go.active:active {
+	box-shadow: inset -4px -4px 10px #fff, inset 4px 4px 10px var(--shadow);
+	color: #fff;
+}
+
+.size-of-grid, .timed-or-untimed {
+	cursor: pointer;
+	position: relative;
+	clear: both;
+	display: block;
+	font-size: 14px;
+	height: 56px;
+}
+
+.size-of-grid .three-by-three, 
+.size-of-grid .four-by-four, 
+.timed-or-untimed .timed, 
+.timed-or-untimed .untimed {
+	width: 50%;
+	float: left;
+	line-height: 32px;
+	color: #fff;
+	box-shadow: -4px -4px 6px rgb(255 255 255 / 20%), 5px 4px 10px rgb(0 0 0 / 50%);
+	border-radius: 50px 0 0 50px;
+	display: block;
+	height: 32px;
+}
+
+.size-of-grid .four-by-four, 
+.timed-or-untimed .timed {
+	border-radius: 0 50px 50px 0;
+}
+
+.size-of-grid .active, 
+.timed-or-untimed .active,
+.boosters .button.active {
+	color: var(--three-letter);
+	box-shadow: inset 3px 3px 10px var(--shadow), inset -3px -3px 10px var(--light);
+	text-shadow: 0px 0px 28px var(--tile-color);
+}
+.boosters .button.active svg {
+	fill: var(--three-letter);
+}
+.word-wrap {
+	position: relative;
+	text-align: center;
+}
+
+.send-to-friend {
+	text-align: center;
+	display: none;
+	margin: 24px;
+}
+
+.send-to-friend .button {
+	background: var(--shadow);
+	color:#fff;
+}
+
+
+.game-controls,
+.boggle-stats {
+	text-align: center;
+	justify-self: stretch;
+	z-index: 3;
+}
+.game-controls {
+	margin-top: 8px;
+}
+.boggle-stats {
+	padding-left: 16px;
+}
+.game-controls h3, 
+.boggle-stats h3 {
+	font-size: 12px;
+    color: #fff;
+    margin: 0;
+    padding: 0;
+    margin-bottom: 16px;
+}
+.your-scores {
+    width: 100%;
+    padding: 16px;
+    box-shadow: inset 3px 3px 10px var(--shadow), inset -3px -3px 10px var(--light);
+    border-radius: 16px;
+	margin-bottom: 16px;
+}
+.boggle-high-score,
+.boggle-high-percentage,
+.boggle-biggest-word {
+	margin-bottom: 8px;
+	font-size: 21px;
+}
+.boggle-high-score::after,
+.boggle-high-percentage::after,
+.boggle-biggest-word::after {
+	content: 'TIMED GAME HIGH SCORE';
+	font-size: 9px;
+	line-height: 1;
+    text-transform: uppercase;
+    display: block;
+}
+.boggle-high-percentage::after {
+	content: 'UNTIMED GAME WORDS FOUND';
+}
+.boggle-biggest-word::after {
+	content: 'LONGEST WORD FOUND';
+}
+.end-the-game {
+    display: none;
+    padding-left: 16px;
+    font-size: 12px;
+	height: 32px;
+	line-height: 32px;
+}
+
+
+
+.boggle-rules {
+    text-align: justify;
+    width: 500px;
+    margin: 0 auto;
+}
+
+.boggle-rules a {
+	color: var(--ribbon);
+}
+
+.boggle-rules a:hover {
+	text-decoration: underline;
+}
+
+.boggle-rules h1 {
+	font-size: 30px;
+	width: 425px;
+	max-width: 100%;
+	margin: 0 auto 25px;
+}
+
+.boggle-rules h2 {
+	font-size: 22px;
+	line-height: 1;
+	width: 425px;
+	max-width: 100%;
+	margin: 50px auto 25px;
+	position: relative;
+	text-align: center;
+}
+
+
+.sign-up {
+    font-size: 14px;
+    line-height: 1.2;
+    text-align: center;
+    margin: 16px 0 8px;
+}
+
+
+.no-touch {
+	pointer-events: none;
+	opacity: 0!important;
+}
+
+.friend-greeting,
+.friend-results {
+    font-size: 24px;
+    line-height: 1;
+	text-align: center;
+}
+.friend-results p {
+	font-size: 16px;
+}
+.url-desc {
+	display: none;
+    padding: 16px 0 8px;
+    color: var(--color);
+    font-size: 12px;
+}
+
+.high-scores {
+	background: rgba(255, 255, 255, .05);
+	width: 100%;
+	height: 260px;
+	position: relative;
+	overflow-y: auto;
+	box-shadow: inset -3px -3px 8px rgb(255 255 255 / 30%), inset 3px 3px 10px rgb(0 0 0 / 50%);
+	border-radius: 15px;
+	padding-top: 10px;
+}
+
+.high-scores .player {
+	display: grid;
+	grid-template-columns: 1fr 1fr 4fr 1fr 1.5fr;
+	justify-content: center;
+	align-items: center;
+	text-align: center;
+	height: 50px;
+	padding: 0 10px;
+	border-bottom: 1px solid rgba(0, 0, 0, .4);
+	font-size: 14px;
+}
+
+.high-scores {
+	overflow-y: auto;
+	-ms-overflow-style: none;
+	scrollbar-width: none;
+}
+
+.high-scores::-webkit-scrollbar {
+	display: none;
+	/* Safari and Chrome */
+}
+
+.player .points::before {
+	display: none;
+}
+
+.player .percentage::after {
+	content: '%';
+}
+
+
+.highlight {
+	background: var(--wordshake);
+}
+.end-screen-message .button.go {
+	background: var(--wordshake);
+    color: #fff;
+	margin-bottom: 24px;
+	font-size: 14px;
+	padding: 0 24px;
+}
+
+.boggle-leaderboard {
+	display: none;
+}
+@media screen and (max-width: 800px) {
+	.your-scores {
+		margin-top: 16px;
+		padding-bottom: 0;
+	}
+	.button.go {
+		font-size: 12px;
+		padding: 0 8px;
+		margin: 0;
+		width: auto;
+	}
+	.end-screen .button.go {
+		padding: 0 24px;
+		font-size: 14px;
+	}
+	.size-of-grid,
+	.timed-or-untimed {
+		font-size: 11px;
+		margin: 0;
+	}
+	.game-controls, 
+	.boggle-stats {
+		display: flex;
+		justify-content: center;
+		grid-gap: 8px;
+		align-content: center;
+		width: 380px;
+		margin: 0 auto;
+		max-width: 100vw;
+	}
+	.boggle-stats {
+		flex-direction: column;
+	}
+	.game-controls h3, 
+	.boggle-stats h3 {
+		display: none;
+	}
+	.letter span {
+		font-size: 45px;
+	}
+
+	.size-of-grid .three-by-three,
+	.size-of-grid .four-by-four,
+	.timed-or-untimed .timed,
+	.timed-or-untimed .untimed {
+		padding: 0 10px;
+	}
+	.play-again {
+		display: none;
+	}
+}
