@@ -1,10 +1,12 @@
 #include <iostream>
 #include <SFML/Graphics.hpp>
+#include <SDL2/SDL_image.h>
 #include <time.h>
 //#include "SDL.h"
 #include<conio.h>
 using namespace sf;
-int size = 152; //letters size
+int Letter_x_size = 154; //letters size
+int Letter_y_size = 165; //letters size
 //don't do this, this is just an example
 //SDL_Renderer* renderer;
 bool isRunning;
@@ -27,20 +29,21 @@ int main() {
 	//t1.loadFromFile("scrabble-letter-vector-pack.jpg");
 	Sprite sBoard(t2);
 
-	t1.loadFromFile("scrabble-letter-vector-pack.jpg");
+	t1.loadFromFile("Letters.jpg");
 	//t2.loadFromFile("images/board.png");
 	for (int i = 0; i < 26; i++) f[i].setTexture(t1);
 	float k = 0;
 	int y_pos = 0;
+	int y_correction = 1;
 	for (int i = 0; i < 26; i++)
 	{
-		f[i].setTextureRect(IntRect(k, y_pos, size, size));
-		k += 152 +15;
-		if (i % 5 == 0 && i != 0) {
-			y_pos += 160+15;
+		if (i % 6 == 0 && i != 0) {
+			y_pos = y_pos + 160 + 15 * y_correction;
+			y_correction++;
 			k = 2;
 		}
-
+		f[i].setTextureRect(IntRect(k, y_pos, Letter_x_size, Letter_y_size));
+		k += 152 + 15;
 	}
 	y_pos = 1;
 	short x_pos = 1;
