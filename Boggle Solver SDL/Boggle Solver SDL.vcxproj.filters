@@ -15,7 +15,26 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Button.cpp">
+    <None Include="SDL2.dll">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="SDL2_ttf.dll">
+      <Filter>Source Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="SDL2.lib">
+      <Filter>Source Files</Filter>
+    </Library>
+    <Library Include="SDL2_ttf.lib">
+      <Filter>Source Files</Filter>
+    </Library>
+    <Library Include="SDL2main.lib">
+      <Filter>Source Files</Filter>
+    </Library>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
