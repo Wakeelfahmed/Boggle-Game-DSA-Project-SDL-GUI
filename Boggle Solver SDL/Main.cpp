@@ -4,8 +4,7 @@
 //#include"include/SDL.h"
 #include"C:\SDL2-devel-2.26.1-VC\include\SDL.h"
 #include"C:\SDL2-devel-2.26.1-VC\include\SDL_ttf.h"
-//#include"include/SDL_ttf.h"
-#include"C:\SDL2-devel-2.26.1-VC\include/SDL2_gfxPrimitives.h"
+#include"C:\SDL2-devel-2.26.1-VC\include\SDL2_gfxPrimitives.h"
 int Transparency = 95;
 SDL_Window* window = SDL_CreateWindow("Button Example", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480, SDL_WINDOW_SHOWN);
 SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
@@ -139,17 +138,11 @@ int main(int argc, char* argv[]) {
 		}
 		SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 		SDL_RenderClear(renderer);
-		if (_kbhit())
-			_getch();// >> x;
-		if (Button_Pushed || 1)//if not Pressed then show shadow
-		{
-			SDL_SetRenderDrawColor(renderer, 75, 75, 75, Transparency);
-			SDL_RenderFillRect(renderer, &button_Shadow);
-		}
-		if (buttonHovered) {
+
+		SDL_SetRenderDrawColor(renderer, 75, 75, 75, Transparency);
+		SDL_RenderFillRect(renderer, &button_Shadow);
+		if (buttonHovered)
 			SDL_SetRenderDrawColor(renderer, 0, 255, 255, 255);
-			SDL_RenderFillRect(renderer, &buttonRect);
-		}
 		else
 			SDL_SetRenderDrawColor(renderer, 204, 204, 0, 255);
 
