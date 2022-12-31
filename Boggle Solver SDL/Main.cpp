@@ -1,9 +1,11 @@
 #include<iostream>
 #include<Windows.h>
 #include<conio.h>
-#include"include/SDL.h"
-#include"include/SDL_ttf.h"
-#include"include/SDL2_gfxPrimitives.h"
+//#include"include/SDL.h"
+#include"C:\SDL2-devel-2.26.1-VC\include\SDL.h"
+#include"C:\SDL2-devel-2.26.1-VC\include\SDL_ttf.h"
+//#include"include/SDL_ttf.h"
+#include"C:\SDL2-devel-2.26.1-VC\include/SDL2_gfxPrimitives.h"
 int Transparency = 95;
 SDL_Window* window = SDL_CreateWindow("Button Example", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480, SDL_WINDOW_SHOWN);
 SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);

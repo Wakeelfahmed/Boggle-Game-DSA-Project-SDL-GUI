@@ -28,14 +28,9 @@
     <Library Include="SDL2_ttf.lib" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="include\SDL2_gfxPrimitives.c" />
-    <ClCompile Include="include\SDL2_rotozoom.c" />
+    <ClCompile Include="..\..\..\..\..\..\..\SDL2-devel-2.26.1-VC\include\SDL2_gfxPrimitives.c" />
+    <ClCompile Include="..\..\..\..\..\..\..\SDL2-devel-2.26.1-VC\include\SDL2_rotozoom.c" />
     <ClCompile Include="Main.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="include\SDL2_gfxPrimitives.h" />
-    <ClInclude Include="include\SDL2_gfxPrimitives_font.h" />
-    <ClInclude Include="include\SDL2_rotozoom.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
