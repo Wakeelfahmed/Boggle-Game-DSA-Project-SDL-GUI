@@ -1,13 +1,12 @@
 #include<iostream>
 #include<Windows.h>
 #include<conio.h>
-//#include"include/SDL.h"
 #include"C:\SDL2-devel-2.26.1-VC\include\SDL.h"
 #include"C:\SDL2-devel-2.26.1-VC\include\SDL_ttf.h"
 #include"C:\SDL2-devel-2.26.1-VC\include\SDL2_gfxPrimitives.h"
-//#include"C:\SDL2-devel-2.26.1-VC\include"
-int Transparency = 100;
-SDL_Window* window = SDL_CreateWindow("Button Example", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480, SDL_WINDOW_SHOWN);
+#include<list>
+int Transparency = 120;
+SDL_Window* window = SDL_CreateWindow("Boggle Game", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480, SDL_WINDOW_SHOWN);
 SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 TTF_Font* font;
 using namespace std;
@@ -34,6 +33,7 @@ public:
 	bool get_Button_Pushed() const { return Button_Pushed; }
 	bool get_Button_Hovered() const { return Button_Hovered; }
 	int get_Button_Size()const { return Button_Size; }
+	void set_Button_Size(int Button_Size) { this->Button_Size = Button_Size; }
 	void Set_Button(char Alphabet, COORD Position, int Button_Size) {
 		text_for_button = Alphabet;
 		this->Position = Position;
@@ -41,8 +41,8 @@ public:
 		Main_Button = { Position.X, Position.Y, Button_Size, Button_Size };
 		Shadow_box = { Position.X + Shadow_offset, Position.Y + Shadow_offset, Button_Size, Button_Size };
 		TTF_Font* font = TTF_OpenFont("arial.ttf", 100);
+		TTF_SetFontStyle(font, TTF_STYLE_BOLD);
 		buttonTextSurface = TTF_RenderText_Blended(font, &text_for_button, { 0, 0, 255 }); //text Color
-		//buttonTextSurface = TTF_RenderText_Solid(font, &text_for_button, { 0, 0, 255 }); //text Color	//old
 		buttonTextTexture1 = SDL_CreateTextureFromSurface(renderer, buttonTextSurface);
 	}
 	void Diplay_Shadow() {
@@ -68,52 +68,112 @@ public:
 		else
 			roundedBoxRGBA(renderer, Main_Button.x, Main_Button.y, Main_Button.x + Main_Button.w, Main_Button.y + Main_Button.h, 20, 204, 0, 204, 255);
 		if (!Button_Pushed)
-			filledCircleRGBA(renderer, (Position.X + 50), Position.Y + 50, 50, 0, 255, 0, 255);
+			filledCircleRGBA(renderer, (Position.X + 50), Position.Y + 50, 43, 0, 255, 0, 255);
 
-		int scale = 1.5;
-		TTF_Font* font = TTF_OpenFont("arial.ttf", 100);
+		float scale = .65;//1.5
 		int w, h;
 		SDL_QueryTexture(buttonTextTexture1, nullptr, nullptr, &w, &h);
-		int x = Main_Button.x + (Main_Button.w - w * scale) / 2;
-		int y = Main_Button.y + (Main_Button.h - h * scale) / 2;
+		float x = Main_Button.x + (Main_Button.w - w * scale) / 2;
+		float y = Main_Button.y + (Main_Button.h - h * scale) / 2;
 		SDL_Rect dst = { x, y, w * scale, h * scale };
 		SDL_RenderCopy(renderer, buttonTextTexture1, nullptr, &dst);
 	}
+	bool Check_if_Mouse_in_Button_Area(int x, int y) const {
+		return (x >= Position.X && x < Position.X + Button_Size && y >= Position.Y && y < Position.Y + Button_Size);
+	}
 };
 class Board {
-	Button Alphabets[8];
+	Button Alphabets[16];
 	int Score;
+	list<string> Words_made;
+	string Current_Word;
+	Button Last_Pressed_Button;
 public:
 	Board() : Score(0) {}
+	void Set_Board() {
+		for (int i = 0; i < 16; i++) {
+			int x = 10 + (i % 4) * (100 + 10);
+			int y = 10 + (i / 4) * (100 + 10);
+			Alphabets[i].set_Button_Size(100);
+			Alphabets[i].Set_Button(char(i + 65), { short(x),short(y) }, Alphabets[i].get_Button_Size());
+		}
+	}
+	bool check_if_Buttons_are_adjacent_in_grid(Button button2) {
+		if (Last_Pressed_Button.get_Position().Y == button2.get_Position().Y
+			&& abs(Last_Pressed_Button.get_Position().X - button2.get_Position().X) == Last_Pressed_Button.get_Button_Size() + 10)
+			return true;
+
+		if (abs(Last_Pressed_Button.get_Position().X - button2.get_Position().X) == 100 + 10 &&
+			abs(Last_Pressed_Button.get_Position().Y - button2.get_Position().Y) == 100 + 10)
+			return true;
+
+		// Check if the buttons are adjacent vertically
+		if (Last_Pressed_Button.get_Position().X == button2.get_Position().X
+			&& abs(Last_Pressed_Button.get_Position().Y - button2.get_Position().Y) == Last_Pressed_Button.get_Button_Size() + 10)
+			return true;
+
+		return false;
+	}
+	void Check_for_Hovering(int x, int y) {
+		for (int i = 0; i < 16; i++)
+			Alphabets[i].set_Button_Hovered(Alphabets[i].Check_if_Mouse_in_Button_Area(x, y));
+	}
+	void Reset_Pressed_Letters() {
+		for (int i = 0; i < 16; i++)
+		{
+			if (Alphabets[i].get_Button_Pushed())
+				Alphabets[i].set_Button_Pushed(0);
+		}
+		Current_Word = "";
+	}
+	void Display_Board() {
+		for (int i = 0; i < 16; i++)
+		{
+			Alphabets[i].Display_Button();
+		}
+	}
+	void Check_for_input(int x, int y) {
+		for (int i = 0; i < 16; i++)
+			if (Alphabets[i].Check_if_Mouse_in_Button_Area(x, y))
+			{
+				if (!Current_Word.empty())
+					if (!check_if_Buttons_are_adjacent_in_grid(Alphabets[i])) // not adjacent to last pushed button
+					{
+						cout << "are NOT adjacent trigeered\n";
+						break;
+					}
+				if (!Alphabets[i].get_Button_Pushed()) {
+					Current_Word += Alphabets[i].get_text_of_button();
+					Last_Pressed_Button = Alphabets[i];
+				}
+				else {	//if button released
+					if (Alphabets[i].get_text_of_button() != Current_Word[Current_Word.size() - 1]) //if released button is in middle of already pressed buttons
+					{
+						Reset_Pressed_Letters();
+						break;
+					}
+					Current_Word.erase(Current_Word.size() - 1, 1);
+				}
+				Alphabets[i].set_Button_Pushed(!Alphabets[i].get_Button_Pushed());
+
+				cout << "Current Word " << Current_Word << endl;
+			}
+	}
 };
 int main(int argc, char* argv[]) {
 	SDL_Init(SDL_INIT_VIDEO);
-	TTF_Init();		Button Normal_Letters[9];	font = TTF_OpenFont("arial.ttf", 100);//16  //max : 7332 /1000
-	//font = TTF_OpenFontDPI("arial.ttf", 5, 100, 100);
-	//cout << TTF_FontHeight(font) << endl;
-	SDL_Surface* buttonTextSurface = TTF_RenderText_Solid(font, "A", { 0, 0, 255 }); //text Color
-	// Create a texture from the surface
-	SDL_Texture* buttonTextTexture = SDL_CreateTextureFromSurface(renderer, buttonTextSurface);
-	SDL_Rect buttonRect{ 10, 10, 100, 100 };
-	int Shadow_offset = 5;
-	SDL_Rect button_Shadow{ 10 + Shadow_offset, 10 + Shadow_offset, 100, 100 };
-	bool buttonHovered = false, Button_Pushed = 0;
+	TTF_Init();		font = TTF_OpenFont("arial.ttf", 100);//16  //max : 7332 /1000
 	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 	SDL_Event event;
-	Normal_Letters[0].Set_Button('A', { 0, 0 }, 100);
-	Normal_Letters[1].Set_Button('B', { 105 + 5, 0 }, 100);
-	Normal_Letters[2].Set_Button('C', { 210 + 10, 0 }, 100);
-	Normal_Letters[3].Set_Button('D', { 315 + 15, 0 }, 100);
-	Normal_Letters[4].Set_Button('E', { 420 + 20, 0 }, 100);
-	Normal_Letters[5].Set_Button('F', { 0       , 105 + 5 }, 100);
-	Normal_Letters[6].Set_Button('G', { 105 + 5 , 105 + 5 }, 100);
-	Normal_Letters[7].Set_Button('H', { 210 + 10, 105 + 5 }, 100);
-	Normal_Letters[8].Set_Button('I', { 315 + 15, 105 + 5 }, 100);
+	Board Boggle_Game;
+	Boggle_Game.Set_Board();
+
 	while (true) {
 		while (SDL_PollEvent(&event)) {
 			if (event.type == SDL_QUIT || event.key.keysym.sym == SDLK_ESCAPE) {
-				SDL_DestroyTexture(buttonTextTexture);
-				SDL_FreeSurface(buttonTextSurface);
+				//SDL_DestroyTexture(buttonTextTexture);
+				//SDL_FreeSurface(buttonTextSurface);
+				//Boggle_Game.~Boggle_Game();
 				TTF_CloseFont(font);
 				SDL_DestroyRenderer(renderer);
 				SDL_DestroyWindow(window);
@@ -125,58 +185,18 @@ int main(int argc, char* argv[]) {
 			{
 				int x, y;
 				SDL_GetMouseState(&x, &y);
-				buttonHovered =
-					(
-						x >= buttonRect.x && x < buttonRect.x + buttonRect.w &&
-						y >= buttonRect.y && y < buttonRect.y + buttonRect.h
-						);
-				for (int i = 0; i < 9; i++)
-				{
-					Normal_Letters[i].set_Button_Hovered((x >= Normal_Letters[i].get_Position().X && x < Normal_Letters[i].get_Position().X + Normal_Letters[i].get_Button_Size() &&
-						y >= Normal_Letters[i].get_Position().Y && y < Normal_Letters[i].get_Position().Y + Normal_Letters[i].get_Button_Size()));
-				}
+				Boggle_Game.Check_for_Hovering(x, y);
 			}
 			if (event.type == SDL_MOUSEBUTTONUP)	//mouse click on Button
 			{
 				int x, y;	SDL_GetMouseState(&x, &y);
-				if (x >= Normal_Letters[1].get_Position().X && x < Normal_Letters[1].get_Position().X + 100 &&
-					y >= Normal_Letters[1].get_Position().Y && y < Normal_Letters[1].get_Position().Y + 100) {
-					Normal_Letters[1].set_Button_Pushed(!Normal_Letters[1].get_Button_Pushed());
-				}
-				if (x >= buttonRect.x && x < buttonRect.x + buttonRect.w &&
-					y >= buttonRect.y && y < buttonRect.y + buttonRect.h) {
-					// The mouse click was within the button, so do something
-					//std::cout << "Button clicked!\n";
-					Button_Pushed = !Button_Pushed;
-					Shadow_offset = Shadow_offset * -1;
-					if (Button_Pushed) {
-						buttonRect = { 15, 15, 95, 95 };
-						button_Shadow.x = 10;
-						button_Shadow.y = 10;
-					}
-					else
-					{
-						buttonRect = { 10, 10, 100, 100 };
-						button_Shadow.x = 10 + Shadow_offset;
-						button_Shadow.y = 10 + Shadow_offset;
-					}
-
-				}
+				Boggle_Game.Check_for_input(x, y);
 			}
 		}
 		SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 		SDL_RenderClear(renderer);
 
-
-		Normal_Letters[0].Display_Button();
-		Normal_Letters[1].Display_Button();
-		Normal_Letters[2].Display_Button();
-		Normal_Letters[3].Display_Button();
-		Normal_Letters[4].Display_Button();
-		Normal_Letters[5].Display_Button();
-		Normal_Letters[6].Display_Button();
-		Normal_Letters[7].Display_Button();
-		Normal_Letters[8].Display_Button();
+		Boggle_Game.Display_Board();
 
 		SDL_RenderPresent(renderer);	//Final Output to SDL window
 	}
