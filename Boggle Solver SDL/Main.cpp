@@ -6,7 +6,7 @@
 #include"C:\SDL2-devel-2.26.1-VC\include\SDL_ttf.h"
 #include"C:\SDL2-devel-2.26.1-VC\include\SDL2_gfxPrimitives.h"
 //#include"C:\SDL2-devel-2.26.1-VC\include"
-int Transparency = 95;
+int Transparency = 100;
 SDL_Window* window = SDL_CreateWindow("Button Example", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480, SDL_WINDOW_SHOWN);
 SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 TTF_Font* font;
@@ -88,7 +88,7 @@ public:
 };
 int main(int argc, char* argv[]) {
 	SDL_Init(SDL_INIT_VIDEO);
-	TTF_Init();		Button Normal_Letters;	font = TTF_OpenFont("arial.ttf", 100);//16  //max : 7332 /1000
+	TTF_Init();		Button Normal_Letters[9];	font = TTF_OpenFont("arial.ttf", 100);//16  //max : 7332 /1000
 	//font = TTF_OpenFontDPI("arial.ttf", 5, 100, 100);
 	//cout << TTF_FontHeight(font) << endl;
 	SDL_Surface* buttonTextSurface = TTF_RenderText_Solid(font, "A", { 0, 0, 255 }); //text Color
@@ -100,7 +100,15 @@ int main(int argc, char* argv[]) {
 	bool buttonHovered = false, Button_Pushed = 0;
 	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 	SDL_Event event;
-	Normal_Letters.Set_Button('B', { 200, 200 }, 100);
+	Normal_Letters[0].Set_Button('A', { 0, 0 }, 100);
+	Normal_Letters[1].Set_Button('B', { 105 + 5, 0 }, 100);
+	Normal_Letters[2].Set_Button('C', { 210 + 10, 0 }, 100);
+	Normal_Letters[3].Set_Button('D', { 315 + 15, 0 }, 100);
+	Normal_Letters[4].Set_Button('E', { 420 + 20, 0 }, 100);
+	Normal_Letters[5].Set_Button('F', { 0       , 105 + 5 }, 100);
+	Normal_Letters[6].Set_Button('G', { 105 + 5 , 105 + 5 }, 100);
+	Normal_Letters[7].Set_Button('H', { 210 + 10, 105 + 5 }, 100);
+	Normal_Letters[8].Set_Button('I', { 315 + 15, 105 + 5 }, 100);
 	while (true) {
 		while (SDL_PollEvent(&event)) {
 			if (event.type == SDL_QUIT || event.key.keysym.sym == SDLK_ESCAPE) {
@@ -122,15 +130,18 @@ int main(int argc, char* argv[]) {
 						x >= buttonRect.x && x < buttonRect.x + buttonRect.w &&
 						y >= buttonRect.y && y < buttonRect.y + buttonRect.h
 						);
-				Normal_Letters.set_Button_Hovered((x >= Normal_Letters.get_Position().X && x < Normal_Letters.get_Position().X + Normal_Letters.get_Button_Size() &&
-					y >= Normal_Letters.get_Position().Y && y < Normal_Letters.get_Position().Y + Normal_Letters.get_Button_Size()));
+				for (int i = 0; i < 9; i++)
+				{
+					Normal_Letters[i].set_Button_Hovered((x >= Normal_Letters[i].get_Position().X && x < Normal_Letters[i].get_Position().X + Normal_Letters[i].get_Button_Size() &&
+						y >= Normal_Letters[i].get_Position().Y && y < Normal_Letters[i].get_Position().Y + Normal_Letters[i].get_Button_Size()));
+				}
 			}
 			if (event.type == SDL_MOUSEBUTTONUP)	//mouse click on Button
 			{
 				int x, y;	SDL_GetMouseState(&x, &y);
-				if (x >= Normal_Letters.get_Position().X && x < Normal_Letters.get_Position().X + 100 &&
-					y >= Normal_Letters.get_Position().Y && y < Normal_Letters.get_Position().Y + 100) {
-					Normal_Letters.set_Button_Pushed(!Normal_Letters.get_Button_Pushed());
+				if (x >= Normal_Letters[1].get_Position().X && x < Normal_Letters[1].get_Position().X + 100 &&
+					y >= Normal_Letters[1].get_Position().Y && y < Normal_Letters[1].get_Position().Y + 100) {
+					Normal_Letters[1].set_Button_Pushed(!Normal_Letters[1].get_Button_Pushed());
 				}
 				if (x >= buttonRect.x && x < buttonRect.x + buttonRect.w &&
 					y >= buttonRect.y && y < buttonRect.y + buttonRect.h) {
@@ -156,19 +167,17 @@ int main(int argc, char* argv[]) {
 		SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 		SDL_RenderClear(renderer);
 
-		//SDL_SetRenderDrawColor(renderer, 75, 75, 75, Transparency);
-		//SDL_RenderFillRect(renderer, &button_Shadow);
-		//if (buttonHovered)
-		//	SDL_SetRenderDrawColor(renderer, 0, 255, 255, 255);
-		//else
-		//	SDL_SetRenderDrawColor(renderer, 204, 204, 0, 255);
 
-		//SDL_RenderFillRect(renderer, &buttonRect);
-		//SDL_RenderCopy(renderer, buttonTextTexture, NULL, &buttonRect);
-		Normal_Letters.Display_Button();
-		//if (!Button_Pushed)
-		//	filledCircleRGBA(renderer, 10 + 50, 10 + 50, 50, 0, 255, 0, 200);
-		//SDL_RenderCopy(renderer, buttonTextTexture, NULL, &buttonRect);
+		Normal_Letters[0].Display_Button();
+		Normal_Letters[1].Display_Button();
+		Normal_Letters[2].Display_Button();
+		Normal_Letters[3].Display_Button();
+		Normal_Letters[4].Display_Button();
+		Normal_Letters[5].Display_Button();
+		Normal_Letters[6].Display_Button();
+		Normal_Letters[7].Display_Button();
+		Normal_Letters[8].Display_Button();
+
 		SDL_RenderPresent(renderer);	//Final Output to SDL window
 	}
 }
