@@ -5,6 +5,8 @@
 #include"C:\SDL2-devel-2.26.1-VC\include\SDL_ttf.h"
 #include"C:\SDL2-devel-2.26.1-VC\include\SDL2_gfxPrimitives.h"
 #include<list>
+#include"Trie Data Structure/Trie_Tree.h"
+#include<fstream>
 int Transparency = 120;
 SDL_Window* window = SDL_CreateWindow("Boggle Game", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480, SDL_WINDOW_SHOWN);
 SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
@@ -160,6 +162,23 @@ public:
 			}
 	}
 };
+int Number_of_W_Read = 0;
+void Read_fr_File_and_store_in_Trie_Tree(Trie_Tree& Word_Dictionary) {
+	string temp;
+	ifstream file("Words Dictionary.txt");
+	if (!file) {
+		cout << "File(Words Dictionary.txt) Not Found !!\n"; _getch(); exit(1);
+	}
+	while (!file.eof())
+	{
+		file >> temp;
+		//cout << temp << endl;
+		Word_Dictionary.Insert(temp);
+		Number_of_W_Read++;
+	}
+	cout << "DONE READING\n";
+	_getch();
+}
 int main(int argc, char* argv[]) {
 	SDL_Init(SDL_INIT_VIDEO);
 	TTF_Init();		font = TTF_OpenFont("arial.ttf", 100);//16  //max : 7332 /1000
@@ -167,7 +186,13 @@ int main(int argc, char* argv[]) {
 	SDL_Event event;
 	Board Boggle_Game;
 	Boggle_Game.Set_Board();
+	Trie_Tree Word_Dictionary;
+	Read_fr_File_and_store_in_Trie_Tree(Word_Dictionary);
 
+
+	cout << "All words in Trie Tree: " << endl;
+	Word_Dictionary.Display();
+	cout << "Number_of_W_Read" << Number_of_W_Read << "\t\tNumber_of_W_in_Tree:" << Word_Dictionary.get_Number_of_Words_in_Tree();
 	while (true) {
 		while (SDL_PollEvent(&event)) {
 			if (event.type == SDL_QUIT || event.key.keysym.sym == SDLK_ESCAPE) {

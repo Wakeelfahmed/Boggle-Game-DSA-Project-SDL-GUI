@@ -43,5 +43,16 @@
     <ClCompile Include="..\..\..\..\..\..\..\SDL2-devel-2.26.1-VC\include\SDL2_rotozoom.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Trie Data Structure\Trie_Tree.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Trie Data Structure\Trie_Node.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Trie Data Structure\Trie_Tree.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
