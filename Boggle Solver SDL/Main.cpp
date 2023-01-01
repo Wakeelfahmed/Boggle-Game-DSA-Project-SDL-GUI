@@ -5,27 +5,26 @@
 #include"C:\SDL2-devel-2.26.1-VC\include\SDL.h"
 #include"C:\SDL2-devel-2.26.1-VC\include\SDL_ttf.h"
 #include"C:\SDL2-devel-2.26.1-VC\include\SDL2_gfxPrimitives.h"
+//#include"C:\SDL2-devel-2.26.1-VC\include"
 int Transparency = 95;
 SDL_Window* window = SDL_CreateWindow("Button Example", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480, SDL_WINDOW_SHOWN);
 SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 TTF_Font* font;
 using namespace std;
 class Button {
-	SDL_Rect Main_Button;
-	SDL_Rect Shadow_box;
+	SDL_Rect Main_Button;	SDL_Rect Shadow_box;
 	char text_for_button;
 	bool Button_Pushed;		bool Button_Hovered;
-	COORD Position;
-	//COORD Shadow_Position;
 	int Shadow_offset;
 	int Button_Size;
+	COORD Position;
 	SDL_Surface* buttonTextSurface = TTF_RenderText_Solid(font, &text_for_button, { 0, 0, 255 }); //text Color
 	SDL_Texture* buttonTextTexture1 = SDL_CreateTextureFromSurface(renderer, buttonTextSurface);
 public:
 	Button() :
-		Button_Pushed(0), Button_Hovered(0), Position({ 0,0 }), Shadow_offset(5), Button_Size(0) {}
-	Button(short x_axis, short y_axis) :
-		Button_Pushed(0), Button_Hovered(0), Position({ x_axis, y_axis }), Shadow_offset(5) {}
+		Main_Button({ 0,0,0,0 }), Shadow_box({ 0,0,0,0 }), Button_Pushed(0), Button_Hovered(0), Position({ 0,0 }), Shadow_offset(5), Button_Size(0) {}
+	//Button(short x_axis, short y_axis) :
+		//Button_Pushed(0), Button_Hovered(0), Position({ x_axis, y_axis }), Shadow_offset(5) {}
 	char get_text_of_button() const { return text_for_button; }
 	void set_Position(COORD Position) { this->Position = Position; }
 	void set_Button_Pushed(bool Button_pushed) { this->Button_Pushed = Button_pushed; }
@@ -41,7 +40,9 @@ public:
 		this->Button_Size = Button_Size;
 		Main_Button = { Position.X, Position.Y, Button_Size, Button_Size };
 		Shadow_box = { Position.X + Shadow_offset, Position.Y + Shadow_offset, Button_Size, Button_Size };
-		buttonTextSurface = TTF_RenderText_Solid(font, &text_for_button, { 0, 0, 255 }); //text Color
+		TTF_Font* font = TTF_OpenFont("arial.ttf", 100);
+		buttonTextSurface = TTF_RenderText_Blended(font, &text_for_button, { 0, 0, 255 }); //text Color
+		//buttonTextSurface = TTF_RenderText_Solid(font, &text_for_button, { 0, 0, 255 }); //text Color	//old
 		buttonTextTexture1 = SDL_CreateTextureFromSurface(renderer, buttonTextSurface);
 	}
 	void Diplay_Shadow() {
@@ -68,12 +69,28 @@ public:
 			roundedBoxRGBA(renderer, Main_Button.x, Main_Button.y, Main_Button.x + Main_Button.w, Main_Button.y + Main_Button.h, 20, 204, 0, 204, 255);
 		if (!Button_Pushed)
 			filledCircleRGBA(renderer, (Position.X + 50), Position.Y + 50, 50, 0, 255, 0, 255);
-		SDL_RenderCopy(renderer, buttonTextTexture1, NULL, &Main_Button);
+
+		int scale = 1.5;
+		TTF_Font* font = TTF_OpenFont("arial.ttf", 100);
+		int w, h;
+		SDL_QueryTexture(buttonTextTexture1, nullptr, nullptr, &w, &h);
+		int x = Main_Button.x + (Main_Button.w - w * scale) / 2;
+		int y = Main_Button.y + (Main_Button.h - h * scale) / 2;
+		SDL_Rect dst = { x, y, w * scale, h * scale };
+		SDL_RenderCopy(renderer, buttonTextTexture1, nullptr, &dst);
 	}
+};
+class Board {
+	Button Alphabets[8];
+	int Score;
+public:
+	Board() : Score(0) {}
 };
 int main(int argc, char* argv[]) {
 	SDL_Init(SDL_INIT_VIDEO);
-	TTF_Init();		Button Normal_Letters;	font = TTF_OpenFont("arial.ttf", 1000);//16  //max : 7332
+	TTF_Init();		Button Normal_Letters;	font = TTF_OpenFont("arial.ttf", 100);//16  //max : 7332 /1000
+	//font = TTF_OpenFontDPI("arial.ttf", 5, 100, 100);
+	//cout << TTF_FontHeight(font) << endl;
 	SDL_Surface* buttonTextSurface = TTF_RenderText_Solid(font, "A", { 0, 0, 255 }); //text Color
 	// Create a texture from the surface
 	SDL_Texture* buttonTextTexture = SDL_CreateTextureFromSurface(renderer, buttonTextSurface);
@@ -118,7 +135,7 @@ int main(int argc, char* argv[]) {
 				if (x >= buttonRect.x && x < buttonRect.x + buttonRect.w &&
 					y >= buttonRect.y && y < buttonRect.y + buttonRect.h) {
 					// The mouse click was within the button, so do something
-					std::cout << "Button clicked!\n";
+					//std::cout << "Button clicked!\n";
 					Button_Pushed = !Button_Pushed;
 					Shadow_offset = Shadow_offset * -1;
 					if (Button_Pushed) {
@@ -139,19 +156,19 @@ int main(int argc, char* argv[]) {
 		SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 		SDL_RenderClear(renderer);
 
-		SDL_SetRenderDrawColor(renderer, 75, 75, 75, Transparency);
-		SDL_RenderFillRect(renderer, &button_Shadow);
-		if (buttonHovered)
-			SDL_SetRenderDrawColor(renderer, 0, 255, 255, 255);
-		else
-			SDL_SetRenderDrawColor(renderer, 204, 204, 0, 255);
+		//SDL_SetRenderDrawColor(renderer, 75, 75, 75, Transparency);
+		//SDL_RenderFillRect(renderer, &button_Shadow);
+		//if (buttonHovered)
+		//	SDL_SetRenderDrawColor(renderer, 0, 255, 255, 255);
+		//else
+		//	SDL_SetRenderDrawColor(renderer, 204, 204, 0, 255);
 
-		SDL_RenderFillRect(renderer, &buttonRect);
-		SDL_RenderCopy(renderer, buttonTextTexture, NULL, &buttonRect);
+		//SDL_RenderFillRect(renderer, &buttonRect);
+		//SDL_RenderCopy(renderer, buttonTextTexture, NULL, &buttonRect);
 		Normal_Letters.Display_Button();
-		if (!Button_Pushed)
-			filledCircleRGBA(renderer, 10 + 50, 10 + 50, 50, 0, 255, 0, 200);
-		SDL_RenderCopy(renderer, buttonTextTexture, NULL, &buttonRect);
-		SDL_RenderPresent(renderer);
+		//if (!Button_Pushed)
+		//	filledCircleRGBA(renderer, 10 + 50, 10 + 50, 50, 0, 255, 0, 200);
+		//SDL_RenderCopy(renderer, buttonTextTexture, NULL, &buttonRect);
+		SDL_RenderPresent(renderer);	//Final Output to SDL window
 	}
 }
