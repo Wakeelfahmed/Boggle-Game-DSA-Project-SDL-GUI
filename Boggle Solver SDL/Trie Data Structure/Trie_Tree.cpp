@@ -67,5 +67,5 @@ void Trie_Tree::Write_SORTED_To_File_fr_Trie_Tree(Trie_Node* node, string word) 
 			Write_SORTED_To_File_fr_Trie_Tree(node->children[i], word + c);
 		}
 	}
-	cout << "DONE WRITING\n";
+	//cout << "DONE WRITING\n";
 }
