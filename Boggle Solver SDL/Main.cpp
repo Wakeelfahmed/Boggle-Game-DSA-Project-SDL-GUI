@@ -1,12 +1,12 @@
 #include<iostream>
 #include<Windows.h>
 #include<conio.h>
+#include<fstream>
 #include"C:\SDL2-devel-2.26.1-VC\include\SDL.h"
 #include"C:\SDL2-devel-2.26.1-VC\include\SDL_ttf.h"
 #include"C:\SDL2-devel-2.26.1-VC\include\SDL2_gfxPrimitives.h"
-#include<list>
-#include"Trie Data Structure/Trie_Tree.h"
-#include<fstream>
+#include"Trie Data Structure/Trie_Tree.h"	//My Trie Data Structure
+//#include<list>
 int Transparency = 120;
 SDL_Window* window = SDL_CreateWindow("Boggle Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 480, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
 SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
@@ -26,7 +26,7 @@ protected:
 	bool Button_Pushed;		bool Button_Hovered;
 	int Shadow_offset;
 	COORD Position;
-	SDL_Surface* buttonTextSurface{ 0 };// = TTF_RenderText_Solid(font, text_for_button, { 0, 0, 255 }); //text Color
+	SDL_Surface* buttonTextSurface{};// = TTF_RenderText_Solid(font, text_for_button, { 0, 0, 255 }); //text Color
 	SDL_Texture* buttonTextTexture{};// = SDL_CreateTextureFromSurface(renderer, buttonTextSurface);
 public:
 	Button() : Main_Button({ 0,0,0,0 }), Shadow_box({ 0,0,0,0 }), Button_Color({ 0,0,0 }), Button_Size({ 0,0 }), Button_Pushed(0), Button_Hovered(0), Position({ 0,0 }), Shadow_offset(5) {}
@@ -56,7 +56,7 @@ public:
 	}
 };
 class Letter_Button_Sq_button : public Button {
-	char char_for_button;
+	char char_for_button{};
 public:
 	void Set_Button(char Alphabet, COORD Position, Size Button_Size, SDL_Color RGB_Color) {
 		//text_for_button = Alphabet;	
@@ -111,7 +111,7 @@ public:
 		SDL_RenderCopy(renderer, buttonTextTexture, nullptr, &dst);
 	}
 };
-class Text_Button : public Button	//Player car
+class Text_Button : public Button
 {
 	string text_for_button;
 public:
@@ -356,7 +356,7 @@ int main(int argc, char* argv[]) {
 	Boggle_Game.Set_Board();
 	Read_fr_File_and_store_in_Trie_Tree(Word_Dictionary);
 	Text_Button Rotate_Button;
-	Rotate_Button.Set_Button("Rotate", { 450,15 }, { 160,70 }, 50, { 48,68,193,255 });
+	Rotate_Button.Set_Button("Rotate", { 500,25 }, { 99, 60 }, 40, { 48, 68, 193, 255 });
 	Word_Dictionary.Write_SORTED_To_File_fr_Trie_Tree();
 	//cout << "All words in Trie Tree: " << endl;
 	//Word_Dictionary.Display();
