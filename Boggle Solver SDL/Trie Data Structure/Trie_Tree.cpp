@@ -69,3 +69,22 @@ void Trie_Tree::Write_SORTED_To_File_fr_Trie_Tree(Trie_Node* node, string word) 
 	}
 	//cout << "DONE WRITING\n";
 }
+Trie_Node* Trie_Tree::get_Tree_Root() const { return root; }
+Trie_Node* Trie_Tree::get_Parent(Trie_Node Child, string Current_Word) const {
+	Trie_Node* p = root;
+	for (int i = 0; i < Current_Word.size(); i++)
+	{
+		int index = Current_Word[i] - 'a';
+		if (i == Current_Word.size() - 1) {
+			cout << "returning p: " << p->children[index];
+			return p;
+
+		}
+		if (p->children[index] == nullptr)
+			return NULL;
+		p = p->children[index];
+
+
+	}
+	//return Child.; 
+}

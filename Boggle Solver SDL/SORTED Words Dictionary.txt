@@ -54,6 +54,7 @@ stock
 stop
 tag
 tea
+ted
 teen
 teens
 ten

@@ -19,12 +19,43 @@ struct Size {
 	Size() :height(0), width(0) {}
 	Size(int h, int w) :height(h), width(w) {}
 };
+class Text_Box {
+protected:
+	string text_for_button;
+	SDL_Rect Main_Button;		SDL_Color Button_Color;			COORD Position;
+	SDL_Surface* buttonTextSurface{};
+	SDL_Texture* buttonTextTexture{};
+	Size Button_Size;
+public:
+	void set_Text_Box(string Text, int Font_Size, SDL_Color Text_Color, COORD Position, Size Button_Size, SDL_Color Button_Color) {
+		this->Position = Position;
+		this->Button_Size = Button_Size;		Main_Button = { Position.X, Position.Y, Button_Size.height, Button_Size.width };
+		this->Button_Color = Button_Color;
+		text_for_button = Text;
+		TTF_Font* font = TTF_OpenFont("arial.ttf", Font_Size);
+		//TTF_SetFontStyle(font, TTF_STYLE_BOLD);
+		//buttonTextSurface = TTF_RenderText_Blended(font, text_for_button.c_str(), { 255,255, 255, 255 }); //text Color
+		buttonTextSurface = TTF_RenderText_Blended(font, text_for_button.c_str(), Text_Color); //text Color
+		buttonTextTexture = SDL_CreateTextureFromSurface(renderer, buttonTextSurface);
+	}
+	void Display_Text_Box() {
+		roundedBoxRGBA(renderer, Main_Button.x, Main_Button.y, Main_Button.x + Main_Button.w, Main_Button.y + Main_Button.h, 20, Button_Color.r, Button_Color.g, Button_Color.b, 255);
+
+		double scale = .65;//1.5
+		int w, h;
+		SDL_QueryTexture(buttonTextTexture, nullptr, nullptr, &w, &h);
+		double x = Main_Button.x + (Main_Button.w - double(w) * scale) / 2;
+		double y = Main_Button.y + (Main_Button.h - double(h) * scale) / 2;
+		SDL_Rect dst = { int(x), int(y), int(w * scale),int(h * scale) };
+		SDL_RenderCopy(renderer, buttonTextTexture, nullptr, &dst);
+		cout << "dis\n";
+	}
+};
 class Button {
 protected:
 	Size Button_Size;
 	SDL_Rect Main_Button;		SDL_Color Button_Color;		SDL_Rect Shadow_box;
-	bool Button_Pushed;		bool Button_Hovered;
-	int Shadow_offset;
+	bool Button_Pushed;		bool Button_Hovered;	int Shadow_offset;
 	COORD Position;
 	SDL_Surface* buttonTextSurface{};// = TTF_RenderText_Solid(font, text_for_button, { 0, 0, 255 }); //text Color
 	SDL_Texture* buttonTextTexture{};// = SDL_CreateTextureFromSurface(renderer, buttonTextSurface);
@@ -202,20 +233,61 @@ public:
 		}
 		c = tolower(c);
 		int index = c - 'a';
+		if (!(index >= 0 && index <= 25))//kind of exception handling
+			exit(0);
 		cout << index << endl;
 		if (Current_Letter_Node->children[index] == nullptr) {
+			static int Disappear = 5000;
 			cout << "nullPTR returned false\n";
+			//Text_Button Invalid_Word_message;
+			//Invalid_Word_message.Set_Button("Invalid Word")
+
+
+			//SDL_Surface* textSurface = TTF_RenderText_Solid(font, "Invalid Word", { 0, 0, 255 });
+			//SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+		/*	SDL_Rect textRect;
+			textRect.x = (640 - textSurface->w) / 2;
+			textRect.y = (480 - textSurface->h) / 2;
+			textRect.w = textSurface->w;
+			textRect.h = textSurface->h;	*/		//TTF_OpenFont("arial.ttf", 100);
+			//SDL_CreateTextureFromSurface(renderer, TTF_RenderText_Solid(font, "Invalid Word", { 0, 0, 255 }));
+			/*SDL_RenderCopy(renderer,
+				SDL_CreateTextureFromSurface(renderer,
+					TTF_RenderText_Solid(TTF_OpenFont("arial.ttf", 500), "Invalid Word", { 0, 0, 0,255 })),
+				nullptr, &dst);*/
+				//SDL_RenderCopy(renderer, textTexture, NULL, &textRect);
+			cout << "INVALID\n";
+			Text_Box Inva;
+			Inva.set_Text_Box("INVALID", 40, { 255,255,255,255 }, { 500,100 }, { 100,60 }, { 75, 75, 75, 255 });
+			Inva.Display_Text_Box();
+			SDL_RenderPresent(renderer);	//Final Output to SDL window
+			SDL_Delay(500);
+			//roundedBoxRGBA(renderer, 0, 0, 0 + 100, Main_Button.y + Main_Button.h, 20, Button_Color.r, Button_Color.g, Button_Color.b, 255);
+
+			//double scale = .65;//1.5
+			//int w, h;
+			//SDL_QueryTexture(buttonTextTexture, nullptr, nullptr, &w, &h);
+			//double x = Main_Button.x + (Main_Button.w - double(w) * scale) / 2;
+			//double y = Main_Button.y + (Main_Button.h - double(h) * scale) / 2;
+			//SDL_Rect dst = { int(x), int(y), int(w * scale),int(h * scale) };
+			//SDL_RenderCopy(renderer, buttonTextTexture, nullptr, &dst);
+
+
+			Reset_Pressed_Letters();
 			return false;
+			//Word invalid and such suffix(word) will never be found
 		}
-		Current_Letter_Node = Current_Letter_Node->children[index];
 		if (Current_Letter_Node->children[index]->children == NULL)
 			return 0;
+		Current_Letter_Node = Current_Letter_Node->children[index];
+
+		cout << "Searching: " << char(index + 'a') << endl;
 		if (Current_Letter_Node->is_end_of_word == 1) {
-			cout << "GOT " << Current_Letter_Node->is_end_of_word << endl;
+			cout << "GOT END OF STRING :" << Current_Letter_Node->is_end_of_word << endl;
 			cout << "return 1\n";
 			Word_Made = 1;	return 1;
 		}
-		cout << "Returing false\n";
+		cout << "default Returing false\n";
 		Word_Made = 0;
 		return 0;
 	}
@@ -242,8 +314,7 @@ public:
 	void Reset_Pressed_Letters() {
 		for (int i = 0; i < 16; i++)
 		{
-			if (Alphabets[i].get_Button_Pushed())
-				Alphabets[i].set_Button_Pushed(0);
+			Alphabets[i].set_Button_Pushed(0);
 		}
 		Current_Word = "";
 		Word_Made = 0;
@@ -258,11 +329,13 @@ public:
 		for (int i = 0; i < 16; i++)
 			if (Alphabets[i].Check_if_Mouse_in_Button_Area(x, y))
 			{
-				if (!Alphabets[i].get_Button_Pushed()) {
+				Alphabets[i].set_Button_Pushed(!Alphabets[i].get_Button_Pushed());
+				if (Alphabets[i].get_Button_Pushed()) {
 					if (!Current_Word.empty())
 						if (!check_if_Buttons_are_adjacent_in_grid(Alphabets[i]) && !(Alphabets[i] == Last_Pressed_Button)) // not adjacent to last pushed button
 						{
 							cout << "are NOT adjacent trigered\n";
+							Alphabets[i].set_Button_Pushed(!Alphabets[i].get_Button_Pushed());
 							break;
 						}
 					Current_Word += Alphabets[i].get_char_of_button();
@@ -290,7 +363,6 @@ public:
 					if (Current_Word == "")
 						Word_Made = 0;
 				}
-				Alphabets[i].set_Button_Pushed(!Alphabets[i].get_Button_Pushed());
 				if (Current_Word == "")
 					cout << "Current Word  <empty>" << Current_Word << endl;
 				else
@@ -361,6 +433,7 @@ int main(int argc, char* argv[]) {
 	//cout << "All words in Trie Tree: " << endl;
 	//Word_Dictionary.Display();
 	//cout << "Number_of_W_Read" << Number_of_W_Read << "\t\tNumber_of_W_in_Tree:" << Word_Dictionary.get_Number_of_Words_in_Tree() << endl;
+	//Word_Dictionary.get_Parent(Word_Dictionary.get_Tree_Root().)
 	int MouseX, MouseY;
 	while (true) {
 		while (SDL_PollEvent(&event)) {
