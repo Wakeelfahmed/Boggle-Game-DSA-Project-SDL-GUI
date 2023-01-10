@@ -16,5 +16,5 @@ public:
 	void Write_SORTED_To_File_fr_Trie_Tree(Trie_Node* node, string word) const;
 	void Display() const;
 	Trie_Node* get_Tree_Root() const;
-	Trie_Node* get_Parent(Trie_Node Child, string Current_Word) const;
+	Trie_Node* get_Parent(Trie_Node* Child, string Current_Word) const;
 };

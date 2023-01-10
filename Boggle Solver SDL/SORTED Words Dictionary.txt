@@ -54,7 +54,6 @@ stock
 stop
 tag
 tea
-ted
 teen
 teens
 ten
@@ -65,6 +64,7 @@ test
 that
 time
 times
+timesdh
 vet
 zen
 zest

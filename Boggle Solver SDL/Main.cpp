@@ -6,7 +6,6 @@
 #include"C:\SDL2-devel-2.26.1-VC\include\SDL_ttf.h"
 #include"C:\SDL2-devel-2.26.1-VC\include\SDL2_gfxPrimitives.h"
 #include"Trie Data Structure/Trie_Tree.h"	//My Trie Data Structure
-//#include<list>
 int Transparency = 120;
 SDL_Window* window = SDL_CreateWindow("Boggle Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 480, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
 SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
@@ -16,8 +15,8 @@ using namespace std;
 struct Size {
 	int height;
 	int width;
-	Size() :height(0), width(0) {}
-	Size(int h, int w) :height(h), width(w) {}
+	Size() : height(0), width(0) {}
+	Size(int h, int w) : height(h), width(w) {}
 };
 class Text_Box {
 protected:
@@ -325,7 +324,7 @@ public:
 		for (int i = 0; i < 16; i++)
 			Alphabets[i].Display_Button(Word_Made);
 	}
-	bool Check_for_input(int x, int y) {
+	bool Check_for_Letters_input(int x, int y) {
 		for (int i = 0; i < 16; i++)
 			if (Alphabets[i].Check_if_Mouse_in_Button_Area(x, y))
 			{
@@ -338,6 +337,9 @@ public:
 							Alphabets[i].set_Button_Pushed(!Alphabets[i].get_Button_Pushed());
 							break;
 						}
+					if (!(Current_Word == ""))
+						thickLineRGBA(renderer, Last_Pressed_Button.get_Position().X + 50, Last_Pressed_Button.get_Position().Y + 50, Alphabets[i].get_Position().X + 50, Alphabets[i].get_Position().Y + 50, 15, 204, 0, 204, 255);
+					SDL_RenderPresent(renderer);
 					Current_Word += Alphabets[i].get_char_of_button();
 					Last_Pressed_Button = Alphabets[i];
 					if (WordMade(Alphabets[i].get_char_of_button())) {
@@ -353,13 +355,25 @@ public:
 						exits_in_string = 1;*/
 					if (Alphabets[i].get_char_of_button() != Current_Word[Current_Word.size() - 1]) //if released button is in middle of already pressed buttons
 					{
+						cout << "Lie in string and atempts to break\n";
 						Reset_Pressed_Letters();
 						break;
 					}
 					else
 						cout << "does Not lie in string\n";
 
+					Current_Letter_Node = Word_Dictionary.get_Parent(Current_Letter_Node, Current_Word);
 					Current_Word.erase(Current_Word.size() - 1, 1);
+					int index = tolower(Current_Word.front()) - 'a';
+					
+					//if (Current_Letter_Node->children[index]->is_end_of_word) {
+					if (Current_Letter_Node->is_end_of_word) {
+						Word_Made = 1;		cout << "Setting to 1\n";
+					}
+					else
+						Word_Made = 0;
+
+
 					if (Current_Word == "")
 						Word_Made = 0;
 				}
@@ -459,7 +473,7 @@ int main(int argc, char* argv[]) {
 			if (event.type == SDL_MOUSEBUTTONUP)	//mouse click on Button
 			{
 				SDL_GetMouseState(&MouseX, &MouseY);
-				if (Boggle_Game.Check_for_input(MouseX, MouseY)) {
+				if (Boggle_Game.Check_for_Letters_input(MouseX, MouseY)) {
 					//cout << "breaking";
 					break;
 				}
