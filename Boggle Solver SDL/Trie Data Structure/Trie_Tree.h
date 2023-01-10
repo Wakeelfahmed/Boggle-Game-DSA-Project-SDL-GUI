@@ -18,5 +18,5 @@ public:
 	void Display() const;
 	Trie_Node* get_Tree_Root() const;
 	Trie_Node* get_Parent(Trie_Node* Child, string Current_Word) const;
-	void Display_Registered_Word(Trie_Node* node, string word);
+	void Display_Registered_Word(Trie_Node* node, string word, string& All_Words);
 };

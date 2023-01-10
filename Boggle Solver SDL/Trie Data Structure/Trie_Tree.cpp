@@ -92,14 +92,15 @@ Trie_Node* Trie_Tree::get_Parent(Trie_Node* Child, string Current_Word) const {
 	}
 	return p;
 }
-void Trie_Tree::Display_Registered_Word(Trie_Node* node, string word) {
+void Trie_Tree::Display_Registered_Word(Trie_Node* node, string word, string &All_Words) {
 	if (node->is_end_of_word && node->is_registerd) {
-		cout << word << endl;
+		All_Words += word;
+		All_Words += " ";
 	}
 	for (int i = 0; i < ALPHABET_SIZE; i++) {
 		if (node->children[i] != nullptr) {
 			char c = 'a' + i;
-			Display_Registered_Word(node->children[i], word + c);
+			Display_Registered_Word(node->children[i], word + c, All_Words);
 		}
 	}
 }
