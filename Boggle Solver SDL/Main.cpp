@@ -10,7 +10,7 @@ int Transparency = 120;
 SDL_Window* window = SDL_CreateWindow("Boggle Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 480, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
 SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 TTF_Font* font;
-Trie_Tree Word_Dictionary;
+Trie_Tree Word_Dictionary_Trie_Tree;
 using namespace std;
 struct Size {
 	int height;
@@ -20,82 +20,108 @@ struct Size {
 };
 class Text_Box {
 protected:
-	string text_for_button;
-	SDL_Rect Main_Button;		SDL_Color Button_Color;			COORD Position;
+public:
+	string text_for_Box;
+	SDL_Rect Box;		SDL_Color Box_Color;			COORD Position;
 	SDL_Surface* buttonTextSurface{};
 	SDL_Texture* buttonTextTexture{};
-	Size Button_Size;
-public:
-	void set_Text_Box(string Text, int Font_Size, SDL_Color Text_Color, COORD Position, Size Button_Size, SDL_Color Button_Color) {
+	Size Box_Size;
+	double scale = 0.65;
+	void set_Text_Box(const char* Text, int Font_Size, SDL_Color Text_Color, COORD Position, Size Button_Size, SDL_Color Button_Color) {
 		this->Position = Position;
-		this->Button_Size = Button_Size;		Main_Button = { Position.X, Position.Y, Button_Size.height, Button_Size.width };
-		this->Button_Color = Button_Color;
-		text_for_button = Text;
+		this->Box_Size = Button_Size;		Box = { Position.X, Position.Y, Button_Size.height, Button_Size.width };
+		this->Box_Color = Button_Color;
+		text_for_Box = Text;
 		TTF_Font* font = TTF_OpenFont("arial.ttf", Font_Size);
 		//TTF_SetFontStyle(font, TTF_STYLE_BOLD);
 		//buttonTextSurface = TTF_RenderText_Blended(font, text_for_button.c_str(), { 255,255, 255, 255 }); //text Color
-		buttonTextSurface = TTF_RenderText_Blended(font, text_for_button.c_str(), Text_Color); //text Color
+		buttonTextSurface = TTF_RenderText_Blended(font, text_for_Box.c_str(), Text_Color); //text Color
 		buttonTextTexture = SDL_CreateTextureFromSurface(renderer, buttonTextSurface);
 	}
-	void Display_Text_Box() {
-		roundedBoxRGBA(renderer, Main_Button.x, Main_Button.y, Main_Button.x + Main_Button.w, Main_Button.y + Main_Button.h, 20, Button_Color.r, Button_Color.g, Button_Color.b, 255);
+	void set_Box_Color(SDL_Color Box_Color1) { Box_Color = Box_Color1; }
+	void Display_Text_Box_Color(SDL_Color newcolor) {
+	}
+	void Display_Text_Box(SDL_Color newcolor, bool usenewcolor_instead_boxcolor) const {
+		if (usenewcolor_instead_boxcolor)
+			roundedBoxRGBA(renderer, Box.x, Box.y, Box.x + Box.w, Box.y + Box.h, 20, newcolor.r, newcolor.g, newcolor.b, 255);
+		else
+			roundedBoxRGBA(renderer, Box.x, Box.y, Box.x + Box.w, Box.y + Box.h, 20, Box_Color.r, Box_Color.g, Box_Color.b, 255);
 
-		double scale = .65;//1.5
+		//scale = .65;//1.5
 		int w, h;
 		SDL_QueryTexture(buttonTextTexture, nullptr, nullptr, &w, &h);
-		double x = Main_Button.x + (Main_Button.w - double(w) * scale) / 2;
-		double y = Main_Button.y + (Main_Button.h - double(h) * scale) / 2;
+		double x = Box.x + (Box.w - double(w) * scale) / 2;
+		double y = Box.y + (Box.h - double(h) * scale) / 2;
 		SDL_Rect dst = { int(x), int(y), int(w * scale),int(h * scale) };
 		SDL_RenderCopy(renderer, buttonTextTexture, nullptr, &dst);
-		cout << "dis\n";
 	}
+	SDL_Rect get_Main_Box() const { return Box; }
+	SDL_Color get_Box_Color() const { return Box_Color; }
+	Size get_Box_Size() const { return Box_Size; }
+	COORD get_Box_Position() const { return Position; }
+	SDL_Surface* get_buttonTextSurface() const { return buttonTextSurface; }
+	SDL_Texture* get_buttonTextTexture() const { return buttonTextTexture; }
 };
 class Button {
 protected:
+public:
+	Text_Box Main_BOX2;
 	Size Button_Size;
 	SDL_Rect Main_Button;		SDL_Color Button_Color;		SDL_Rect Shadow_box;
 	bool Button_Pushed;		bool Button_Hovered;	int Shadow_offset;
 	COORD Position;
 	SDL_Surface* buttonTextSurface{};// = TTF_RenderText_Solid(font, text_for_button, { 0, 0, 255 }); //text Color
 	SDL_Texture* buttonTextTexture{};// = SDL_CreateTextureFromSurface(renderer, buttonTextSurface);
-public:
 	Button() : Main_Button({ 0,0,0,0 }), Shadow_box({ 0,0,0,0 }), Button_Color({ 0,0,0 }), Button_Size({ 0,0 }), Button_Pushed(0), Button_Hovered(0), Position({ 0,0 }), Shadow_offset(5) {}
 	//Button() : Main_Button({ 0,0,0,0 }), Shadow_box({ 0,0,0,0 }), Button_Color({ 0,0,0 }), Button_Pushed(0), Button_Hovered(0), Position({ 0,0 }), Shadow_offset(5), Button_Size(0) {}
 	void set_Position(COORD Position) { this->Position = Position; }
 	void set_Button_Size(Size Button_Size) { this->Button_Size = Button_Size; }
 	void set_Button_Pushed(bool Button_pushed) { this->Button_Pushed = Button_pushed; }
 	void set_Button_Hovered(bool Button_hovered) { this->Button_Hovered = Button_hovered; }
-	COORD get_Position() const { return Position; }
-	bool get_Button_Pushed() const { return Button_Pushed; }
-	bool get_Button_Hovered() const { return Button_Hovered; }
+	bool Check_if_Mouse_in_Button_Area(int x, int y) const {
+		//cout << "Hovering at " << this->Main_BOX2.text_for_Box << endl;
+		return (x >= Main_BOX2.get_Box_Position().X && x < Main_BOX2.get_Box_Position().X + Main_BOX2.get_Box_Size().height && y >= Main_BOX2.get_Box_Position().Y && y < Main_BOX2.get_Box_Position().Y + Main_BOX2.get_Box_Size().width);
+	}
 	bool operator==(Button Button2) {
 		if (Position.Y == Button2.Position.Y && Position.X == Button2.Position.X)
 			return 1;
 		return 0;
 	}
-	bool Check_if_Mouse_in_Button_Area(int x, int y) const {
-		return (x >= Position.X && x < Position.X + Button_Size.height && y >= Position.Y && y < Position.Y + Button_Size.width);
-	}
-	Size get_Button_Size() const { return Button_Size; }
 	void Diplay_Shadow() const {
 		SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 		if (Button_Pushed)//inner shadow
-			roundedBoxRGBA(renderer, Position.X, Position.Y, Shadow_box.x + Button_Size.height, Shadow_box.y + Button_Size.width, 20, Button_Color.r * (0.55), Button_Color.g * (0.55), Button_Color.b * (0.55), Transparency + 30);
+			roundedBoxRGBA(renderer, Main_BOX2.get_Box_Position().X, Main_BOX2.get_Box_Position().Y, Shadow_box.x + Main_BOX2.get_Box_Size().height, Shadow_box.y + Main_BOX2.get_Box_Size().width, 20, Main_BOX2.Box_Color.r * (0.55), Main_BOX2.Box_Color.g * (0.55), Main_BOX2.Box_Color.b * (0.55), Transparency + 30);
 		else
-			roundedBoxRGBA(renderer, Position.X, Position.Y, Shadow_box.x + Button_Size.height, Shadow_box.y + Button_Size.width, 20, 75, 75, 75, Transparency);
+			roundedBoxRGBA(renderer, Main_BOX2.get_Box_Position().X, Main_BOX2.get_Box_Position().Y, Shadow_box.x + Main_BOX2.get_Box_Size().height, Shadow_box.y + Main_BOX2.get_Box_Size().width, 20, 75, 75, 75, Transparency);
+	}
+
+	COORD get_Position() const { return Position; }
+	bool get_Button_Pushed() const { return Button_Pushed; }
+	bool get_Button_Hovered() const { return Button_Hovered; }
+	Size get_Button_Size() const { return Button_Size; }
+
+
+	void Set_Button(const char* Alphabet, COORD Position, Size Button_Size, int Font_Size, SDL_Color RGB_Color) {
+		//text_for_button = Alphabet;
+		Main_BOX2.set_Text_Box(Alphabet, Font_Size, { 255,255,255,255 }, Position, Button_Size, RGB_Color);
+		this->Position = Position;
+		//this->Button_Size = Button_Size;		Main_Button = { Position.X, Position.Y, Button_Size.height, Button_Size.width };
+		//Button_Color = RGB_Color;
+		Shadow_box = { Position.X + Shadow_offset, Position.Y + Shadow_offset, Button_Size.height, Button_Size.width };
+		//set_text_of_button(Alphabet, Font_Size);
 	}
 };
 class Letter_Button_Sq_button : public Button {
 	char char_for_button{};
 public:
-	void Set_Button(char Alphabet, COORD Position, Size Button_Size, SDL_Color RGB_Color) {
-		//text_for_button = Alphabet;	
+	/*void Set_Button(char Alphabet, COORD Position, Size Button_Size, SDL_Color RGB_Color) {
+		char_for_button = Alphabet;
 		this->Position = Position;
 		this->Button_Size = Button_Size;		Main_Button = { Position.X, Position.Y, Button_Size.height, Button_Size.width };
 		Button_Color = RGB_Color;
 		Shadow_box = { Position.X + Shadow_offset, Position.Y + Shadow_offset, Button_Size.height, Button_Size.width };
 		set_char_of_button(Alphabet);
-	}
+	}*/
 	void set_char_of_button(char Alphabet) {
 		char_for_button = Alphabet;
 		TTF_Font* font = TTF_OpenFont("arial.ttf", 100);
@@ -146,50 +172,38 @@ class Text_Button : public Button
 	string text_for_button;
 public:
 	Text_Button() : text_for_button("") {}
-	void Set_Button(string Alphabet, COORD Position, Size Button_Size, int Font_Size, SDL_Color RGB_Color) {
-		//text_for_button = Alphabet;	
-		this->Position = Position;
-		this->Button_Size = Button_Size;		Main_Button = { Position.X, Position.Y, Button_Size.height, Button_Size.width };
-		Button_Color = RGB_Color;
-		Shadow_box = { Position.X + Shadow_offset, Position.Y + Shadow_offset, Button_Size.height, Button_Size.width };
-		set_text_of_button(Alphabet, Font_Size);
+	void Diplay_Shadow() const {
+		SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+		if (Button_Pushed)//inner shadow
+			roundedBoxRGBA(renderer, Main_BOX2.get_Box_Position().X, Main_BOX2.get_Box_Position().Y, Shadow_box.x + Main_BOX2.get_Box_Size().height, Shadow_box.y + Main_BOX2.get_Box_Size().width, 20, Main_BOX2.Box_Color.r * (0.55), Main_BOX2.Box_Color.g * (0.55), Main_BOX2.Box_Color.b * (0.55), Transparency + 30);
+		else
+			roundedBoxRGBA(renderer, Main_BOX2.get_Box_Position().X, Main_BOX2.get_Box_Position().Y, Shadow_box.x + Main_BOX2.get_Box_Size().height, Shadow_box.y + Main_BOX2.get_Box_Size().width, 20, 75, 75, 75, Transparency);
 	}
-	void set_text_of_button(string Alphabet, int Font_Size) {
-		text_for_button = Alphabet;
-		TTF_Font* font = TTF_OpenFont("arial.ttf", Font_Size);
-		//TTF_SetFontStyle(font, TTF_STYLE_BOLD);
-		buttonTextSurface = TTF_RenderText_Blended(font, text_for_button.c_str(), { 255,255, 255, 255 }); //text Color
-		//buttonTextSurface = TTF_RenderText_Blended(font, text_for_button.c_str(), { 0, 0, 255 }); //text Color
-		buttonTextTexture = SDL_CreateTextureFromSurface(renderer, buttonTextSurface);
-	}
-	string get_text_of_button() const { return text_for_button; }
+	string get_text_of_button() const { return Main_BOX2.text_for_Box; }
 	void Display_Button() {
 		if (Button_Pushed) {
-			Main_Button =
-			{ Position.X + 5, Position.Y + 5, Button_Size.height - Shadow_offset, Button_Size.width - Shadow_offset };
-			Shadow_box.x = Position.X;
-			Shadow_box.y = Position.Y;
+			Main_BOX2.Box =
+			{ Main_BOX2.Position.X + 5, Main_BOX2.Position.Y + 5, Main_BOX2.Box_Size.height - Shadow_offset, Main_BOX2.Box_Size.width - Shadow_offset };
+			Shadow_box.x = Main_BOX2.Position.X;
+			Shadow_box.y = Main_BOX2.Position.Y;
 		}
 		else
 		{
-			Main_Button = { Position.X, Position.Y , Button_Size.height , Button_Size.width };
-			Shadow_box.x = Position.X + Shadow_offset;
-			Shadow_box.y = Position.Y + Shadow_offset;
+			Main_BOX2.Box = { Main_BOX2.Position.X, Main_BOX2.Position.Y , Main_BOX2.Box_Size.height , Main_BOX2.Box_Size.width };
+			Shadow_box.x = Main_BOX2.Position.X + Shadow_offset;
+			Shadow_box.y = Main_BOX2.Position.Y + Shadow_offset;
 		}
+		SDL_Color temp = Main_BOX2.Box_Color;
 		Diplay_Shadow();
-		if (Button_Hovered)
-			roundedBoxRGBA(renderer, Main_Button.x, Main_Button.y, Main_Button.x + Main_Button.w, Main_Button.y + Main_Button.h, 20, Button_Color.r * 0.85, Button_Color.g * 0.85, Button_Color.b * 0.85, 255);
-		//roundedBoxRGBA(renderer, Main_Button.x, Main_Button.y, Main_Button.x + Main_Button.w, Main_Button.y + Main_Button.h, 20, 0, 255, 255, 255);
-		else
-			roundedBoxRGBA(renderer, Main_Button.x, Main_Button.y, Main_Button.x + Main_Button.w, Main_Button.y + Main_Button.h, 20, Button_Color.r, Button_Color.g, Button_Color.b, 255);
-
-		double scale = .65;//1.5
-		int w, h;
-		SDL_QueryTexture(buttonTextTexture, nullptr, nullptr, &w, &h);
-		double x = Main_Button.x + (Main_Button.w - double(w) * scale) / 2;
-		double y = Main_Button.y + (Main_Button.h - double(h) * scale) / 2;
-		SDL_Rect dst = { int(x), int(y), int(w * scale),int(h * scale) };
-		SDL_RenderCopy(renderer, buttonTextTexture, nullptr, &dst);
+		if (Button_Hovered) {
+			temp.r = temp.r * 0.85;
+			temp.g = temp.g * 0.85;
+			temp.b = temp.b * 0.85;
+			temp.a = 255;
+			Main_BOX2.Display_Text_Box(temp, 1);
+			return;
+		}
+		Main_BOX2.Display_Text_Box({ 0 }, 0);
 	}
 };
 class Board {
@@ -207,7 +221,7 @@ public:
 			int x = 10 + (i % 4) * (100 + 10);	//making Grid 
 			int y = 10 + (i / 4) * (100 + 10);	//making Grid 
 			Alphabets[i].set_Button_Size({ 100, 100 });
-			Alphabets[i].Set_Button(' ', { short(x),short(y) }, Alphabets[i].get_Button_Size(), { 204, 0, 204, 255 });
+			Alphabets[i].Set_Button("", { short(x),short(y) }, Alphabets[i].get_Button_Size(), 100, { 204, 0, 204, 255 });
 		}
 		Alphabets[15].get_Position();
 		//string Set_Board_Letters = "FEBNETVMVSEEQZNT";
@@ -228,7 +242,7 @@ public:
 	bool WordMade(char c) {
 		if (Current_Letter_Node == NULL) {
 			cout << "TO root\n";
-			Current_Letter_Node = Word_Dictionary.root;
+			Current_Letter_Node = Word_Dictionary_Trie_Tree.root;
 		}
 		c = tolower(c);
 		int index = c - 'a';
@@ -255,10 +269,10 @@ public:
 					TTF_RenderText_Solid(TTF_OpenFont("arial.ttf", 500), "Invalid Word", { 0, 0, 0,255 })),
 				nullptr, &dst);*/
 				//SDL_RenderCopy(renderer, textTexture, NULL, &textRect);
-			cout << "INVALID\n";
+			cout << "Invalid Word\n";
 			Text_Box Inva;
-			Inva.set_Text_Box("INVALID", 40, { 255,255,255,255 }, { 500,100 }, { 100,60 }, { 75, 75, 75, 255 });
-			Inva.Display_Text_Box();
+			Inva.set_Text_Box("Invalid Word", 40, { 255,255,255,255 }, { 500,100 }, { 100,60 }, { 75, 75, 75, 255 });
+			Inva.Display_Text_Box({}, 0);
 			SDL_RenderPresent(renderer);	//Final Output to SDL window
 			SDL_Delay(500);
 			//roundedBoxRGBA(renderer, 0, 0, 0 + 100, Main_Button.y + Main_Button.h, 20, Button_Color.r, Button_Color.g, Button_Color.b, 255);
@@ -350,6 +364,13 @@ public:
 				}
 				else {	//if button released
 					bool exits_in_string = 0;
+					if (Word_Made) {
+						cout << "Registered\n";
+						Current_Letter_Node->is_registerd = 1;
+						Word_Dictionary_Trie_Tree.Display_Registered_Word(Word_Dictionary_Trie_Tree.get_Tree_Root(), "");
+						Reset_Pressed_Letters();
+						break;
+					}
 					/*for (int i = 0; i < Current_Word.size() - 1; i++)
 						if (Alphabets[i].get_char_of_button())
 						exits_in_string = 1;*/
@@ -362,11 +383,13 @@ public:
 					else
 						cout << "does Not lie in string\n";
 
-					Current_Letter_Node = Word_Dictionary.get_Parent(Current_Letter_Node, Current_Word);
+					Current_Letter_Node = Word_Dictionary_Trie_Tree.get_Parent(Current_Letter_Node, Current_Word);
 					Current_Word.erase(Current_Word.size() - 1, 1);
+
+					if (Current_Word == "")
+						break;
+
 					int index = tolower(Current_Word.front()) - 'a';
-					
-					//if (Current_Letter_Node->children[index]->is_end_of_word) {
 					if (Current_Letter_Node->is_end_of_word) {
 						Word_Made = 1;		cout << "Setting to 1\n";
 					}
@@ -374,8 +397,6 @@ public:
 						Word_Made = 0;
 
 
-					if (Current_Word == "")
-						Word_Made = 0;
 				}
 				if (Current_Word == "")
 					cout << "Current Word  <empty>" << Current_Word << endl;
@@ -440,10 +461,10 @@ int main(int argc, char* argv[]) {
 	SDL_Event event;
 	Board Boggle_Game;
 	Boggle_Game.Set_Board();
-	Read_fr_File_and_store_in_Trie_Tree(Word_Dictionary);
+	Read_fr_File_and_store_in_Trie_Tree(Word_Dictionary_Trie_Tree);
 	Text_Button Rotate_Button;
 	Rotate_Button.Set_Button("Rotate", { 500,25 }, { 99, 60 }, 40, { 48, 68, 193, 255 });
-	Word_Dictionary.Write_SORTED_To_File_fr_Trie_Tree();
+	Word_Dictionary_Trie_Tree.Write_SORTED_To_File_fr_Trie_Tree();
 	//cout << "All words in Trie Tree: " << endl;
 	//Word_Dictionary.Display();
 	//cout << "Number_of_W_Read" << Number_of_W_Read << "\t\tNumber_of_W_in_Tree:" << Word_Dictionary.get_Number_of_Words_in_Tree() << endl;

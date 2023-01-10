@@ -4,11 +4,10 @@
 using namespace std;
 Trie_Tree::Trie_Tree() { root = new Trie_Node();	Number_of_Words_in_Tree = 0; }
 int Trie_Tree::get_Number_of_Words_in_Tree() const { return Number_of_Words_in_Tree; }
-void Trie_Tree::Insert(const string& word) {
+void Trie_Tree::Insert(const string word) {
 	Trie_Node* current = root;
 	for (char c : word) {
-		int index = c - 'a';
-		//cout << index << " ";
+		int index = c - 'a';		//cout << index << " ";
 		if (current->children[index] == nullptr)
 			current->children[index] = new Trie_Node();
 
@@ -17,7 +16,7 @@ void Trie_Tree::Insert(const string& word) {
 	Number_of_Words_in_Tree++;
 	current->is_end_of_word = true;
 }
-bool Trie_Tree::Search(const string& word) const {
+bool Trie_Tree::Search(const string word) const {
 	Trie_Node* current = root;
 	for (char c : word) {
 		int index = c - 'a';
@@ -28,7 +27,7 @@ bool Trie_Tree::Search(const string& word) const {
 	}
 	return current->is_end_of_word;
 }
-bool Trie_Tree::StartsWith(const string& prefix) const {
+bool Trie_Tree::StartsWith(const string prefix) const {
 	Trie_Node* current = root;
 	for (char c : prefix) {
 		int index = c - 'a';
@@ -41,9 +40,9 @@ bool Trie_Tree::StartsWith(const string& prefix) const {
 }
 void Trie_Tree::Display() const { Display(root, ""); }
 void Trie_Tree::Display(Trie_Node* node, string word) const {
-	if (node->is_end_of_word) {
+	if (node->is_end_of_word)
 		cout << word << endl;
-	}
+
 	for (int i = 0; i < ALPHABET_SIZE; i++) {
 		if (node->children[i] != nullptr) {
 			char c = 'a' + i;
@@ -73,7 +72,7 @@ Trie_Node* Trie_Tree::get_Tree_Root() const { return root; }
 Trie_Node* Trie_Tree::get_Parent(Trie_Node* Child, string Current_Word) const {
 	Trie_Node* p = root;
 	int index;
-	for (int i = 0; i < Current_Word.size()-1; i++)
+	for (int i = 0; i < Current_Word.size() - 1; i++)
 	{
 		index = tolower((Current_Word[i])) - 'a';
 		cout << Current_Word[i] << endl;
@@ -91,5 +90,16 @@ Trie_Node* Trie_Tree::get_Parent(Trie_Node* Child, string Current_Word) const {
 			return NULL;
 		p = p->children[index];
 	}
-	return p; 
+	return p;
+}
+void Trie_Tree::Display_Registered_Word(Trie_Node* node, string word) {
+	if (node->is_end_of_word && node->is_registerd) {
+		cout << word << endl;
+	}
+	for (int i = 0; i < ALPHABET_SIZE; i++) {
+		if (node->children[i] != nullptr) {
+			char c = 'a' + i;
+			Display_Registered_Word(node->children[i], word + c);
+		}
+	}
 }
