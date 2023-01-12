@@ -30,6 +30,8 @@
   <ItemGroup>
     <ClCompile Include="..\..\..\..\..\..\..\SDL2-devel-2.26.1-VC\include\SDL2_gfxPrimitives.c" />
     <ClCompile Include="..\..\..\..\..\..\..\SDL2-devel-2.26.1-VC\include\SDL2_rotozoom.c" />
+    <ClCompile Include="List\circular_list.cpp" />
+    <ClCompile Include="List\Node.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Trie Data Structure\Trie_Tree.cpp" />
   </ItemGroup>

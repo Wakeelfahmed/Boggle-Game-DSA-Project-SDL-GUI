@@ -3,6 +3,7 @@ aim
 and
 ant
 ash
+ate
 ball
 bat
 be

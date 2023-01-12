@@ -9,7 +9,6 @@ public:
 	Trie_Tree();
 	int get_Number_of_Words_in_Tree() const;
 	void Insert(const string word);
-	//void Insert(const string& word);
 	bool Search(const string word) const;
 	bool StartsWith(const string prefix) const;
 	void Display(Trie_Node* node, string word) const;
@@ -19,4 +18,6 @@ public:
 	Trie_Node* get_Tree_Root() const;
 	Trie_Node* get_Parent(Trie_Node* Child, string Current_Word) const;
 	void Display_Registered_Word(Trie_Node* node, string word, string& All_Words);
+	void Reset_Registered_Words(Trie_Node* node, string word) const;
+	int get_longest_string(Trie_Node* node, string word) const;
 };

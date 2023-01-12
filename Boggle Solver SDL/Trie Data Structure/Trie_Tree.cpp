@@ -75,15 +75,15 @@ Trie_Node* Trie_Tree::get_Parent(Trie_Node* Child, string Current_Word) const {
 	for (int i = 0; i < Current_Word.size() - 1; i++)
 	{
 		index = tolower((Current_Word[i])) - 'a';
-		cout << Current_Word[i] << endl;
-		cout << index << endl;
+		//cout << Current_Word[i] << endl;
+		//cout << index << endl;
 		if (!(index >= 0 && index <= 25))//kind of exception handling
 		{
 			cout << "Warning\n";
 			exit(0);
 		}
 		if (i == Current_Word.size() - 1) {
-			cout << "returning p: " << p->children[index];
+			//cout << "returning p: " << p->children[index];
 			return p;
 		}
 		if (p->children[index] == nullptr)
@@ -103,4 +103,31 @@ void Trie_Tree::Display_Registered_Word(Trie_Node* node, string word, string &Al
 			Display_Registered_Word(node->children[i], word + c, All_Words);
 		}
 	}
+}
+void Trie_Tree::Reset_Registered_Words(Trie_Node* node, string word) const {
+	if (node->is_end_of_word && node->is_registerd == 1)
+		node->is_registerd = 0;
+	
+	for (int i = 0; i < ALPHABET_SIZE; i++) {
+		if (node->children[i] != nullptr) {
+			char c = 'a' + i;
+			Reset_Registered_Words(node->children[i], word + c);
+		}
+	}
+}
+int max1 = 0;
+int Trie_Tree::get_longest_string(Trie_Node* node, string word) const {
+	if (node->is_end_of_word) {
+		if (word.size() > max1) {
+			cout << "Longest WOrd" << word << endl;
+			max1 = word.size();
+		}
+	}
+	for (int i = 0; i < ALPHABET_SIZE; i++) {
+		if (node->children[i] != nullptr) {
+			char c = 'a' + i;
+			get_longest_string(node->children[i], word + c);
+		}
+	}
+	return max1;
 }
