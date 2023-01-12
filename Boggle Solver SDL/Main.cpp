@@ -9,7 +9,7 @@
 #include<sstream>
 #include"List/circular_list.h"
 int Transparency = 120;
-SDL_Window* window = SDL_CreateWindow("Boggle Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 700, 530, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
+SDL_Window* window = SDL_CreateWindow("Boggle Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 750, 571, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
 SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 TTF_Font* font;
 Trie_Tree Word_Dictionary_Trie_Tree;
@@ -32,6 +32,16 @@ public:
 	static double scale;
 	static int Rounding_Radius;
 	SDL_Rect Box;
+	void set_Box_Text_Char(char Text, int Font_Size, SDL_Color Text_Color, bool BOLD) {
+		text_for_Box = "";
+		text_for_Box = Text;
+		TTF_Font* font = TTF_OpenFont("arial.ttf", Font_Size);
+		if (BOLD)
+			TTF_SetFontStyle(font, TTF_STYLE_BOLD);
+
+		buttonTextSurface = TTF_RenderText_Blended(font, text_for_Box.c_str(), Text_Color); //text Color
+		buttonTextTexture = SDL_CreateTextureFromSurface(renderer, buttonTextSurface);
+	}
 	void set_Box_Text(const char* Text, int Font_Size, SDL_Color Text_Color, bool BOLD) {
 		text_for_Box = Text;
 		TTF_Font* font = TTF_OpenFont("arial.ttf", Font_Size);
@@ -74,7 +84,6 @@ public:
 };
 double Text_Box::scale = 0.65;
 int Text_Box::Rounding_Radius = 20;
-
 class Button {
 protected:
 	Text_Box Main_Text_Box;
@@ -86,7 +95,8 @@ public:
 		Shadow_box = { Position.X + Shadow_offset, Position.Y + Shadow_offset, Button_Size.height, Button_Size.width };
 	}
 	void set_char_of_button(char Alphabet) {
-		Main_Text_Box.set_Box_Text(&Alphabet, 100, { 0, 0, 255 }, 1);
+		//char ch = &Alphabet;
+		Main_Text_Box.set_Box_Text_Char(Alphabet, 100, { 0, 0, 255 }, 1);
 	}
 	void set_Button_Color(SDL_Color newColor) { Main_Text_Box.set_Box_Color(newColor); }
 	void set_Button_Size(Size Button_Size) { this->Main_Text_Box.set_Box_Size(Button_Size); }
@@ -128,12 +138,13 @@ public:
 		if (!Button_Pushed)
 			filledCircleRGBA(renderer, (Main_Text_Box.get_Box_Position().X + 50), Main_Text_Box.get_Box_Position().Y + 50, 43, 0, 255, 0, 255);
 
+
 		double scale = .65;//1.5
 		int w, h;
 		SDL_QueryTexture(Main_Text_Box.get_buttonTextTexture(), nullptr, nullptr, &w, &h);
-		double x = Main_Text_Box.get_Main_Box().x + (Main_Text_Box.get_Main_Box().w - double(w) * scale) / 2;
-		double y = Main_Text_Box.get_Main_Box().y + (Main_Text_Box.get_Main_Box().h - double(h) * scale) / 2;
-		SDL_Rect dst = { int(x), int(y), int(w * scale),int(h * scale) };
+		double x = Main_Text_Box.get_Main_Box().x + (Main_Text_Box.get_Main_Box().w - double(w) * Main_Text_Box.scale) / 2;
+		double y = Main_Text_Box.get_Main_Box().y + (Main_Text_Box.get_Main_Box().h - double(h) * Main_Text_Box.scale) / 2;
+		SDL_Rect dst = { int(x), int(y), int(w * Main_Text_Box.scale),int(h * Main_Text_Box.scale) };
 		SDL_RenderCopy(renderer, Main_Text_Box.get_buttonTextTexture(), nullptr, &dst);
 	}
 	void Display_Text_Button() {
@@ -170,13 +181,17 @@ public:
 	string get_text_of_button() const { return Main_Text_Box.get_text_for_Box(); }
 	Text_Box get_Main_Text_Box() const { return Main_Text_Box; }
 };
-Text_Box Inva;
+Text_Box Invalid_Word_Mess, Score_Board, Current_Word_Board;
 class Players
 {
 protected:
 	char Player_Name[50] = "";			int High_score{};		bool isActive{ false };
 	int No_of_Player_Profiles{};
 public:
+	int get_high_score() const { return High_score; }
+	void update_high_Score(int new_high_score) { High_score = High_score + (new_high_score - High_score); }
+	char* get_Player_Name() { return Player_Name; }
+	bool get_IsActive_Status()const { return isActive; }
 
 };
 class Board {
@@ -190,14 +205,10 @@ class Board {
 	circular_list Buttons_coord;
 public:
 	Board() : Score(0), Word_Made(0), Current_Word(""), Current_Letter_Node(NULL) {}
-	void Set_Board() {
-		int x, y;
-		string Set_Board_Letters = "ATEHHDSEVTMFWLIA";
+	void Set_Board(string Set_Board_Letters) {
 		for (int i = 0; i < 16; i++) {
-			x = 10 + (i % 4) * (100 + 10);	//making Grid 
-			y = 10 + (i / 4) * (100 + 10);	//making Grid 
 			string temp(1, Set_Board_Letters[i]);
-			Alphabets[i].Set_Button(temp.c_str(), { 0, 0, 255 }, { short(x),short(y) }, { 100,100 }, 100, { 204, 0, 204, 255 }, 1);
+			Alphabets[i].Set_Button(temp.c_str(), { 0, 0, 255 }, { short(10 + (i % 4) * (100 + 10)), short((10 + (i / 4) * (100 + 10) + 49)) }, { 100,100 }, 100, { 204, 0, 204, 255 }, 1);
 		}
 	}
 	bool check_if_WordMade(char c) {
@@ -210,8 +221,7 @@ public:
 			exit(0);
 		if (Current_Letter_Node->children[index] == nullptr) {
 
-			Inva.set_Text_Box("Invalid Word", 40, { 255,255,255,255 }, { 475,90 }, { 150,60 }, { 75, 75, 75, 255 }, 0);
-			Inva.Display_Text_Box({}, 0);
+			Invalid_Word_Mess.Display_Text_Box({}, 0);
 			SDL_RenderPresent(renderer);	//Final Output to SDL window
 			SDL_Delay(750);
 
@@ -316,7 +326,7 @@ public:
 				}
 				else {	//if button released
 					if (Word_Made) {
-						Score++;
+						Score += Score_Generator(Current_Word);
 						Current_Letter_Node->is_registerd = 1;
 						Reset_Pressed_Letters();
 						break;
@@ -347,6 +357,23 @@ public:
 			}
 		return 0;
 	}
+	int Score_Generator(string Word) {
+		switch (Word.size())
+		{
+		case 2:
+		case 3:
+		case 4:
+			return 1;
+		case 5:
+			return 2;
+		case 6:
+			return 3;
+		case 7:
+			return 5;
+		default:
+			return 11;
+		}
+	}
 	void Show_Registered_Words() {
 		if (Score == 0)
 			return;
@@ -354,7 +381,7 @@ public:
 		int Longest_String = Word_Dictionary_Trie_Tree.get_longest_string(Word_Dictionary_Trie_Tree.get_Tree_Root(), "");
 		Text_Box Registered_Word_list;
 		Word_Dictionary_Trie_Tree.Display_Registered_Word(Word_Dictionary_Trie_Tree.get_Tree_Root(), "", text);
-		Registered_Word_list.set_Text_Box("", 30, { 255,255,255, 255 }, { 450,150 }, { 180,324 }, { 43,31,143,255 }, 0);
+		Registered_Word_list.set_Text_Box("", 30, { 255,255,255, 255 }, { 460,150 }, { 180,324 }, { 43,31,143,255 }, 0);
 		// Get the size of the text
 
 		int w, h;
@@ -364,7 +391,7 @@ public:
 		string word;
 		int correction = 0;
 		bool is_First_Word = 1;
-				Registered_Word_list.Rounding_Radius = 10;
+		Registered_Word_list.Rounding_Radius = 15;
 		while (getline(ss, word, ' ')) {
 			SDL_Surface* surface = TTF_RenderText_Blended(TTF_OpenFont("arial.ttf", 25), word.c_str(), { 255,255,255,255 });
 			SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
@@ -373,8 +400,8 @@ public:
 				correction = 25;
 			}
 			else
-			correction = -5;
-				//Registered_Word_list.Rounding_Radius = 10;
+				correction = -5;
+			//Registered_Word_list.Rounding_Radius = 10;
 			is_First_Word = 0;
 			SDL_QueryTexture(texture, NULL, NULL, &w, &h);
 			Registered_Word_list.set_Text_Box("", 30, { 255,255,255, 255 }, { short(x - 5),short(y - 5) }, { 180,w + correction }, { 43,31,143,255 }, 0);
@@ -385,8 +412,23 @@ public:
 			y += h;
 			SDL_DestroyTexture(texture);
 		}
-			is_First_Word = 1;
+		is_First_Word = 1;
 		Registered_Word_list.Rounding_Radius = 20;
+	}
+	void Display_Current_Word() const {
+		if (Current_Word == "")
+			return;
+		Current_Word_Board.set_Text_Box(Current_Word.c_str(), 40, { 255,255,255,255 }, { 470,65 }, { 150,60 }, { 75, 75, 75, 255 }, 0);
+		Current_Word_Board.Display_Text_Box({ 0 }, 0);
+
+	}
+	void Display_Score() const {
+		string score_mess = "Score " + to_string(Score);
+		COORD Center;
+		Center.X = (Alphabets[1].get_Position().X + Alphabets[2].get_Position().X) / 2 - 20;
+		Center.Y = (Alphabets[1].get_Position().Y + Alphabets[2].get_Position().Y) / 2 - 73;
+		Score_Board.set_Text_Box(score_mess.c_str(), 40, { 255,255,255,255 }, Center, { 150,60 }, { 75, 75, 75, 255 }, 0);
+		Score_Board.Display_Text_Box({ 0 }, 0);
 	}
 	void Board_rotate() {
 		char temp[4];
@@ -414,8 +456,35 @@ public:
 		Alphabets[7].set_char_of_button(temp[1]);
 
 	}
+	int get_Game_Score() const { return Score; }
+	void New_Game(string Game_Settings[], int number_of_settings) {
+		Reset_game();
+		static int index = 0;
+		{
+			Set_Board(Game_Settings[index]);
+			index++;
+			if (number_of_settings == index)
+				index = 0;
+		}
+	}
 };
 int Number_of_W_Read = 0;
+void Read_Board_Letter(string game_settings[], int& number_of_setting) {
+	int i = 0;
+	number_of_setting = 0;
+	ifstream file("Board_Letter.txt");
+	if (!file) {
+		cout << "File(Board_Letter.txt) Not Found !!\n"; _getch(); exit(1);
+	}
+	while (!file.eof())
+	{
+		file >> game_settings[i];		//cout << temp << endl;
+		i++;
+		//Word_Dictionary.Insert(temp);
+	}
+	number_of_setting = i - 1;
+	cout << "DONE READING\n";
+}
 void Read_fr_File_and_store_in_Trie_Tree(Trie_Tree& Word_Dictionary) {
 	string temp;
 	ifstream file("Words Dictionary.txt");
@@ -437,14 +506,18 @@ int main(int argc, char* argv[]) {
 	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 	SDL_Event event;
 	Board Boggle_Game;
-	Boggle_Game.Set_Board();
 	Read_fr_File_and_store_in_Trie_Tree(Word_Dictionary_Trie_Tree);
-	Button Rotate_Button, Reset_Button;
-	Rotate_Button.Set_Button("Rotate", { 255,255,255,255 }, { 450,25 }, { 99, 50 }, 40, { 48, 68, 193, 255 }, 0);
-	Reset_Button.Set_Button("Reset", { 255,255,255,255 }, { 560,25 }, { 99, 50 }, 40, { 48, 68, 193, 255 }, 0);
-	string Player_name;
+	Button Rotate_Button, Reset_Button, New_Game_Button;
+	Rotate_Button.Set_Button("Rotate", { 255,255,255,255 }, { 23 + 15,507 }, { 99, 50 }, 40, { 48, 68, 193, 255 }, 0);
+	Reset_Button.Set_Button("Reset", { 255,255,255,255 }, { 23 + 130,507 }, { 99, 50 }, 40, { 48, 68, 193, 255 }, 0);
+	New_Game_Button.Set_Button("New Game", { 255,255,255,255 }, { 23 + 244,507 }, { 140, 50 }, 40, { 255, 128, 0, 255 }, 0);
+	Invalid_Word_Mess.set_Text_Box("Invalid Word", 40, { 255,255,255,255 }, { 470, 65 }, { 150,60 }, { 255,0,0, 255 }, 0);
+	Players Game_Player;
+	string Player_name;	int number_of_setting = 0;
 	Word_Dictionary_Trie_Tree.Write_SORTED_To_File_fr_Trie_Tree();
-
+	string game_setting[5];
+	Read_Board_Letter(game_setting, number_of_setting);
+	Boggle_Game.New_Game(game_setting, number_of_setting);
 	int MouseX, MouseY;
 	while (true) {
 		while (SDL_PollEvent(&event)) {
@@ -464,7 +537,8 @@ int main(int argc, char* argv[]) {
 				SDL_GetMouseState(&MouseX, &MouseY);
 				Boggle_Game.Check_for_Hovering(MouseX, MouseY);
 				Rotate_Button.set_Button_Hovered(Rotate_Button.Check_if_Mouse_in_Button_Area(MouseX, MouseY));
-
+				Reset_Button.set_Button_Hovered(Reset_Button.Check_if_Mouse_in_Button_Area(MouseX, MouseY));
+				New_Game_Button.set_Button_Hovered(New_Game_Button.Check_if_Mouse_in_Button_Area(MouseX, MouseY));
 			}
 			if (event.type == SDL_MOUSEBUTTONUP)	//mouse click on Button
 			{
@@ -484,9 +558,16 @@ int main(int argc, char* argv[]) {
 					Reset_Button.set_Button_Pushed(0);
 					break;
 				}
+				if (New_Game_Button.Check_if_Mouse_in_Button_Area(MouseX, MouseY)) {
+					//RELEASED
+					Boggle_Game.New_Game(game_setting, number_of_setting);
+					New_Game_Button.set_Button_Pushed(0);
+					break;
+				}
 			}
 			if (event.type == SDL_MOUSEBUTTONDOWN) {	//mouse click on Button
 				SDL_GetMouseState(&MouseX, &MouseY);
+
 				if (Rotate_Button.Check_if_Mouse_in_Button_Area(MouseX, MouseY)) {
 					Rotate_Button.set_Button_Pushed(!Rotate_Button.get_Button_Pushed());
 					Rotate_Button.Display_Text_Button();
@@ -497,17 +578,25 @@ int main(int argc, char* argv[]) {
 					Reset_Button.Display_Text_Button();
 					break;
 				}
+				if (New_Game_Button.Check_if_Mouse_in_Button_Area(MouseX, MouseY)) {
+					New_Game_Button.set_Button_Pushed(!New_Game_Button.get_Button_Pushed());
+					New_Game_Button.Display_Text_Button();
+					break;
+				}
 			}
 		}
-
 		SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 		SDL_SetRenderDrawColor(renderer, 130, 214, 240, 50);
 		SDL_RenderClear(renderer);
-
 		Boggle_Game.Display_Board();
 		Rotate_Button.Display_Text_Button();
 		Reset_Button.Display_Text_Button();
+		New_Game_Button.Display_Text_Button();
 		Boggle_Game.Show_Registered_Words();
+		Boggle_Game.Display_Current_Word();
+		Boggle_Game.Display_Score();
+		if (Boggle_Game.get_Game_Score() > Game_Player.get_high_score())
+			Game_Player.update_high_Score(Boggle_Game.get_Game_Score()); //updating Player high score at runtime
 		SDL_RenderPresent(renderer);	//Final Output to SDL window
 	}
 }

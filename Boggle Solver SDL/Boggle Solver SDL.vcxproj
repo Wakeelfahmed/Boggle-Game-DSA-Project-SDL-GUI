@@ -30,6 +30,7 @@
   <ItemGroup>
     <ClCompile Include="..\..\..\..\..\..\..\SDL2-devel-2.26.1-VC\include\SDL2_gfxPrimitives.c" />
     <ClCompile Include="..\..\..\..\..\..\..\SDL2-devel-2.26.1-VC\include\SDL2_rotozoom.c" />
+    <ClCompile Include="extrcting.cpp" />
     <ClCompile Include="List\circular_list.cpp" />
     <ClCompile Include="List\Node.cpp" />
     <ClCompile Include="Main.cpp" />
@@ -38,6 +39,9 @@
   <ItemGroup>
     <ClInclude Include="Trie Data Structure\Trie_Node.h" />
     <ClInclude Include="Trie Data Structure\Trie_Tree.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="Source.txt" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

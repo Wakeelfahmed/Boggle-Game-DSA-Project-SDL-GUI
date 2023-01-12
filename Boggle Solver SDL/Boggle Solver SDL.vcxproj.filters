@@ -52,6 +52,9 @@
     <ClCompile Include="List\Node.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="extrcting.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Trie Data Structure\Trie_Node.h">
@@ -60,5 +63,8 @@
     <ClInclude Include="Trie Data Structure\Trie_Tree.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="Source.txt" />
   </ItemGroup>
 </Project>
