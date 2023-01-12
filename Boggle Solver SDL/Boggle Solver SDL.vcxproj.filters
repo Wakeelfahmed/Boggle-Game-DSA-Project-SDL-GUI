@@ -16,44 +16,41 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="SDL2.dll">
-      <Filter>Source Files</Filter>
+      <Filter>Resource Files</Filter>
     </None>
     <None Include="SDL2_ttf.dll">
-      <Filter>Source Files</Filter>
+      <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
     <Library Include="SDL2.lib">
-      <Filter>Source Files</Filter>
+      <Filter>Resource Files</Filter>
     </Library>
     <Library Include="SDL2_ttf.lib">
-      <Filter>Source Files</Filter>
+      <Filter>Resource Files</Filter>
     </Library>
     <Library Include="SDL2main.lib">
-      <Filter>Source Files</Filter>
+      <Filter>Resource Files</Filter>
     </Library>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\..\..\..\SDL2-devel-2.26.1-VC\include\SDL2_gfxPrimitives.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\..\..\SDL2-devel-2.26.1-VC\include\SDL2_rotozoom.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Trie Data Structure\Trie_Tree.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="List\circular_list.cpp">
+    <ClCompile Include="List\list.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="List\Node.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="extrcting.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="..\..\..\..\..\..\..\SDL2-devel-2.26.1-VC\include\SDL2_gfxPrimitives.c">
+      <Filter>Resource Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\..\..\SDL2-devel-2.26.1-VC\include\SDL2_rotozoom.c">
+      <Filter>Resource Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -63,8 +60,5 @@
     <ClInclude Include="Trie Data Structure\Trie_Tree.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="Source.txt" />
   </ItemGroup>
 </Project>

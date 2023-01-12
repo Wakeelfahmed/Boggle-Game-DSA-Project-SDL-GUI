@@ -1,13 +1,13 @@
 #include<iostream>
 #include<conio.h>
 #include<fstream>
-#include"C:\SDL2-devel-2.26.1-VC\include\SDL.h"
-#include"C:\SDL2-devel-2.26.1-VC\include\SDL_ttf.h"
-#include"C:\SDL2-devel-2.26.1-VC\include\SDL2_gfxPrimitives.h"
-#include"Trie Data Structure/Trie_Tree.h"	//My Trie Data Structure
 #include<string>
 #include<sstream>
-#include"List/circular_list.h"
+#include"C:\SDL2-devel-2.26.1-VC\include\SDL.h"		//for SDL GUI
+#include"C:\SDL2-devel-2.26.1-VC\include\SDL_ttf.h"	//for SDL GUI Font
+#include"C:\SDL2-devel-2.26.1-VC\include\SDL2_gfxPrimitives.h"	//for SDL GUI
+#include"Trie Data Structure/Trie_Tree.h"	//My Trie Data Structure
+#include"List/list.h"	//list for the line that appears behind Pressed Letters
 int Transparency = 120;
 SDL_Window* window = SDL_CreateWindow("Boggle Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 750, 571, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
 SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
@@ -202,7 +202,7 @@ class Board {
 	Button Last_Pressed_Button;
 	bool Word_Made;
 	Trie_Node* Current_Letter_Node;
-	circular_list Buttons_coord;
+	list Buttons_coord;
 public:
 	Board() : Score(0), Word_Made(0), Current_Word(""), Current_Letter_Node(NULL) {}
 	void Set_Board(string Set_Board_Letters) {
@@ -418,9 +418,8 @@ public:
 	void Display_Current_Word() const {
 		if (Current_Word == "")
 			return;
-		Current_Word_Board.set_Text_Box(Current_Word.c_str(), 40, { 255,255,255,255 }, { 470,65 }, { 150,60 }, { 75, 75, 75, 255 }, 0);
+		Current_Word_Board.set_Text_Box(Current_Word.c_str(), 40, { 255,255,255,255 }, { 470,70 }, { 150,60 }, { 75, 75, 75, 255 }, 0);
 		Current_Word_Board.Display_Text_Box({ 0 }, 0);
-
 	}
 	void Display_Score() const {
 		string score_mess = "Score " + to_string(Score);
@@ -511,7 +510,7 @@ int main(int argc, char* argv[]) {
 	Rotate_Button.Set_Button("Rotate", { 255,255,255,255 }, { 23 + 15,507 }, { 99, 50 }, 40, { 48, 68, 193, 255 }, 0);
 	Reset_Button.Set_Button("Reset", { 255,255,255,255 }, { 23 + 130,507 }, { 99, 50 }, 40, { 48, 68, 193, 255 }, 0);
 	New_Game_Button.Set_Button("New Game", { 255,255,255,255 }, { 23 + 244,507 }, { 140, 50 }, 40, { 255, 128, 0, 255 }, 0);
-	Invalid_Word_Mess.set_Text_Box("Invalid Word", 40, { 255,255,255,255 }, { 470, 65 }, { 150,60 }, { 255,0,0, 255 }, 0);
+	Invalid_Word_Mess.set_Text_Box("Invalid Word", 40, { 255,255,255,255 }, { 470, 70 }, { 150,60 }, { 255,0,0, 255 }, 0);
 	Players Game_Player;
 	string Player_name;	int number_of_setting = 0;
 	Word_Dictionary_Trie_Tree.Write_SORTED_To_File_fr_Trie_Tree();
