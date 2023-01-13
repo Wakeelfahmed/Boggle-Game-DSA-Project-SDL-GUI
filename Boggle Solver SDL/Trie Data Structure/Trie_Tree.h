@@ -17,7 +17,7 @@ public:
 	void Display() const;
 	Trie_Node* get_Tree_Root() const;
 	Trie_Node* get_Parent(Trie_Node* Child, string Current_Word) const;
-	void Display_Registered_Word(Trie_Node* node, string word, string& All_Words);
+	void Display_Registered_Word(Trie_Node* node, string word, string& All_Words, int string_length);
 	void Reset_Registered_Words(Trie_Node* node, string word) const;
-	int get_longest_string(Trie_Node* node, string word) const;
+	void get_smallest_longest_string(Trie_Node* node, string word, int& smallest, int& longest) const;
 };

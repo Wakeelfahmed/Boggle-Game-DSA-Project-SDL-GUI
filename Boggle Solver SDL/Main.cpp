@@ -38,9 +38,11 @@ public:
 		TTF_Font* font = TTF_OpenFont("arial.ttf", Font_Size);
 		if (BOLD)
 			TTF_SetFontStyle(font, TTF_STYLE_BOLD);
-
+		SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 		buttonTextSurface = TTF_RenderText_Blended(font, text_for_Box.c_str(), Text_Color); //text Color
+		SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 		buttonTextTexture = SDL_CreateTextureFromSurface(renderer, buttonTextSurface);
+		SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 	}
 	void set_Box_Text(const char* Text, int Font_Size, SDL_Color Text_Color, bool BOLD) {
 		text_for_Box = Text;
@@ -138,8 +140,6 @@ public:
 		if (!Button_Pushed)
 			filledCircleRGBA(renderer, (Main_Text_Box.get_Box_Position().X + 50), Main_Text_Box.get_Box_Position().Y + 50, 43, 0, 255, 0, 255);
 
-
-		double scale = .65;//1.5
 		int w, h;
 		SDL_QueryTexture(Main_Text_Box.get_buttonTextTexture(), nullptr, nullptr, &w, &h);
 		double x = Main_Text_Box.get_Main_Box().x + (Main_Text_Box.get_Main_Box().w - double(w) * Main_Text_Box.scale) / 2;
@@ -377,43 +377,69 @@ public:
 	void Show_Registered_Words() {
 		if (Score == 0)
 			return;
-		string text;
-		int Longest_String = Word_Dictionary_Trie_Tree.get_longest_string(Word_Dictionary_Trie_Tree.get_Tree_Root(), "");
-		Text_Box Registered_Word_list;
-		Word_Dictionary_Trie_Tree.Display_Registered_Word(Word_Dictionary_Trie_Tree.get_Tree_Root(), "", text);
-		Registered_Word_list.set_Text_Box("", 30, { 255,255,255, 255 }, { 460,150 }, { 180,324 }, { 43,31,143,255 }, 0);
-		// Get the size of the text
-
-		int w, h;
-		TTF_SizeText(TTF_OpenFont("arial.ttf", 25), "", &w, &h);
-		int x = Registered_Word_list.get_Box_Position().X + 5, y = Registered_Word_list.get_Box_Position().Y + 5;
-		istringstream ss(text);
-		string word;
-		int correction = 0;
-		bool is_First_Word = 1;
-		Registered_Word_list.Rounding_Radius = 15;
-		while (getline(ss, word, ' ')) {
-			SDL_Surface* surface = TTF_RenderText_Blended(TTF_OpenFont("arial.ttf", 25), word.c_str(), { 255,255,255,255 });
-			SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
-			SDL_FreeSurface(surface);
-			if (word.size() <= 4 || is_First_Word) {
-				correction = 25;
-			}
-			else
-				correction = -5;
-			//Registered_Word_list.Rounding_Radius = 10;
-			is_First_Word = 0;
-			SDL_QueryTexture(texture, NULL, NULL, &w, &h);
-			Registered_Word_list.set_Text_Box("", 30, { 255,255,255, 255 }, { short(x - 5),short(y - 5) }, { 180,w + correction }, { 43,31,143,255 }, 0);
-			Registered_Word_list.Display_Text_Box({ 0 }, 0);
-			SDL_Rect rect = { x, y, w, h };
-			//roundedBoxRGBA(renderer, rect.x, rect.y, rect.x + rect.w, rect.y + rect.h, 20, 75, 75, 75, 255);
-			SDL_RenderCopy(renderer, texture, NULL, &rect);
-			y += h;
-			SDL_DestroyTexture(texture);
+		int smallest = INT_MAX, Longest_String = 0;
+		Word_Dictionary_Trie_Tree.get_smallest_longest_string(Word_Dictionary_Trie_Tree.get_Tree_Root(), "", smallest, Longest_String);
+		if (smallest == Longest_String) {
 		}
-		is_First_Word = 1;
-		Registered_Word_list.Rounding_Radius = 20;
+			Longest_String++;
+		string text;
+		int i = smallest, number_of_iterations_skiped = 0;
+		Text_Box Registered_Word_list;
+		SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+		int x_correction = 0;
+		Registered_Word_list.set_Text_Box("", 30, { 255,255,255, 255 }, { 450,150 }, { 100,324 }, { 43,31,143,0 }, 0);
+		int x = Registered_Word_list.get_Box_Position().X + 5 + x_correction, y = Registered_Word_list.get_Box_Position().Y + 5;
+		COORD org = { x ,y };
+		int w, h = 0;
+		while (i != Longest_String) {
+			Word_Dictionary_Trie_Tree.Display_Registered_Word(Word_Dictionary_Trie_Tree.get_Tree_Root(), "", text, i);
+			// Get the size of the text
+			TTF_SizeText(TTF_OpenFont("arial.ttf", 25), "", &w, &h);
+			istringstream ss(text);
+			int MAX_horizontal_spacing = 0;	static int Max_Box_Height = y;
+			if (Score == 0)
+				Max_Box_Height = y + 15;
+			string word;
+			int correction = 0;
+			bool is_First_Word = 0;
+			Registered_Word_list.Rounding_Radius = 15;
+			while (getline(ss, word, ' ')) {
+				SDL_Surface* surface = TTF_RenderText_Blended(TTF_OpenFont("arial.ttf", 25), word.c_str(), { 255,255,255,255 });
+				SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+				SDL_FreeSurface(surface);
+				/*if (word.size() <= 4 || is_First_Word) {
+					correction = 25;
+				}
+				else
+					correction = -5;*/
+					//Registered_Word_list.Rounding_Radius = 10;
+				is_First_Word = 0;
+				SDL_QueryTexture(texture, NULL, NULL, &w, &h);
+				if (MAX_horizontal_spacing < w)
+					MAX_horizontal_spacing = w;
+				if (Max_Box_Height < y)
+					Max_Box_Height = y;
+				SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+				Size test;
+				test.height;
+				Registered_Word_list.set_Text_Box("", 30, { 255,255,255, 255 }, { short(x - 5),short(y - 5) }, { 100,Max_Box_Height - y+40 }, { 43,31,143,0 }, 0);
+				//Registered_Word_list.set_Text_Box("", 30, { 255,255,255, 255 }, { short(x - 5),short(y - 5) }, {100,w + correction }, { 43,31,143,0 }, 0);
+				//boxSIZE: width, height
+				SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+				Registered_Word_list.Display_Text_Box({ 0 }, 0);
+				SDL_Rect rect = { x, y, w, h };
+				//roundedBoxRGBA(renderer, rect.x, rect.y, rect.x + rect.w, rect.y + rect.h, 20, 75, 75, 75, 255);
+				SDL_RenderCopy(renderer, texture, NULL, &rect);
+				y += h;
+				SDL_DestroyTexture(texture);
+			}
+			is_First_Word = 1;
+			Registered_Word_list.Rounding_Radius = 20;
+			text = "";
+			x = (x + MAX_horizontal_spacing + 12), y = org.Y;
+			i++;
+			//x_correction = (3 + h);
+		}
 	}
 	void Display_Current_Word() const {
 		if (Current_Word == "")

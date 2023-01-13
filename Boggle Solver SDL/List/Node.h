@@ -2,7 +2,7 @@
 #include<Windows.h>
 class Node
 {
-	COORD Data;
+	COORD Data{};
 public:
 	Node* next;
 	Node();
