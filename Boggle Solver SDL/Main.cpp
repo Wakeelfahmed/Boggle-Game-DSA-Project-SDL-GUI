@@ -3,13 +3,14 @@
 #include<fstream>
 #include<string>
 #include<sstream>
+//#include <SDL_image.h>
 #include"C:\SDL2-devel-2.26.1-VC\include\SDL.h"		//for SDL GUI
 #include"C:\SDL2-devel-2.26.1-VC\include\SDL_ttf.h"	//for SDL GUI Font
 #include"C:\SDL2-devel-2.26.1-VC\include\SDL2_gfxPrimitives.h"	//for SDL GUI
 #include"Trie Data Structure/Trie_Tree.h"	//My Trie Data Structure
 #include"List/list.h"	//list for the line that appears behind Pressed Letters
 int Transparency = 120;
-SDL_Window* window = SDL_CreateWindow("Boggle Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 750, 571, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
+SDL_Window* window = SDL_CreateWindow("Boggle Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 840/*width*/, 571, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
 SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 TTF_Font* font;
 Trie_Tree Word_Dictionary_Trie_Tree;
@@ -381,7 +382,7 @@ public:
 		Word_Dictionary_Trie_Tree.get_smallest_longest_string(Word_Dictionary_Trie_Tree.get_Tree_Root(), "", smallest, Longest_String);
 		if (smallest == Longest_String) {
 		}
-			Longest_String++;
+		Longest_String++;
 		string text;
 		int i = smallest, number_of_iterations_skiped = 0;
 		Text_Box Registered_Word_list;
@@ -391,6 +392,7 @@ public:
 		int x = Registered_Word_list.get_Box_Position().X + 5 + x_correction, y = Registered_Word_list.get_Box_Position().Y + 5;
 		COORD org = { x ,y };
 		int w, h = 0;
+		bool is_First_Word = 1;
 		while (i != Longest_String) {
 			Word_Dictionary_Trie_Tree.Display_Registered_Word(Word_Dictionary_Trie_Tree.get_Tree_Root(), "", text, i);
 			// Get the size of the text
@@ -401,19 +403,23 @@ public:
 				Max_Box_Height = y + 15;
 			string word;
 			int correction = 0;
-			bool is_First_Word = 0;
 			Registered_Word_list.Rounding_Radius = 15;
 			while (getline(ss, word, ' ')) {
+
 				SDL_Surface* surface = TTF_RenderText_Blended(TTF_OpenFont("arial.ttf", 25), word.c_str(), { 255,255,255,255 });
 				SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
 				SDL_FreeSurface(surface);
-				/*if (word.size() <= 4 || is_First_Word) {
-					correction = 25;
-				}
+				//if (word.size() <= 4 || is_First_Word) {
+				//	correction = 25;
+				//}
+				//else
+				//	correction = -5;
+				if (is_First_Word || i + 1 == Longest_String)
+					Registered_Word_list.Rounding_Radius = 20;
 				else
-					correction = -5;*/
-					//Registered_Word_list.Rounding_Radius = 10;
-				is_First_Word = 0;
+					Registered_Word_list.Rounding_Radius = 0;
+				//if (i != smallest)
+					//is_First_Word = 0;
 				SDL_QueryTexture(texture, NULL, NULL, &w, &h);
 				if (MAX_horizontal_spacing < w)
 					MAX_horizontal_spacing = w;
@@ -422,7 +428,7 @@ public:
 				SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 				Size test;
 				test.height;
-				Registered_Word_list.set_Text_Box("", 30, { 255,255,255, 255 }, { short(x - 5),short(y - 5) }, { 100,Max_Box_Height - y+40 }, { 43,31,143,0 }, 0);
+				Registered_Word_list.set_Text_Box("", 30, { 255,255,255, 255 }, { short(x - 5),short(y - 5) }, { 100,Max_Box_Height - y + 40 }, { 43,31,143,0 }, 0);
 				//Registered_Word_list.set_Text_Box("", 30, { 255,255,255, 255 }, { short(x - 5),short(y - 5) }, {100,w + correction }, { 43,31,143,0 }, 0);
 				//boxSIZE: width, height
 				SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
@@ -433,11 +439,17 @@ public:
 				y += h;
 				SDL_DestroyTexture(texture);
 			}
-			is_First_Word = 1;
+			is_First_Word = 0;
 			Registered_Word_list.Rounding_Radius = 20;
 			text = "";
-			x = (x + MAX_horizontal_spacing + 12), y = org.Y;
+			if (word == "")
+				x = (x + MAX_horizontal_spacing + i + 1 / 2), y = org.Y;
+			//x = (x + MAX_horizontal_spacing + i/2), y = org.Y;
+			else
+				x = (x + MAX_horizontal_spacing + i + 1 / 2), y = org.Y;
+			//x = (x + MAX_horizontal_spacing + 12), y = org.Y;
 			i++;
+			MAX_horizontal_spacing = 0;
 			//x_correction = (3 + h);
 		}
 	}
@@ -528,6 +540,7 @@ void Read_fr_File_and_store_in_Trie_Tree(Trie_Tree& Word_Dictionary) {
 int main(int argc, char* argv[]) {
 	SDL_Init(SDL_INIT_VIDEO);
 	TTF_Init();		font = TTF_OpenFont("arial.ttf", 100);//16  //max : 7332 /1000
+	//SDL_SetWindowIcon(window, ICON);
 	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 	SDL_Event event;
 	Board Boggle_Game;

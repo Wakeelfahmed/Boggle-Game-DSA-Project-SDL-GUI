@@ -36,8 +36,15 @@
     <ClCompile Include="Trie Data Structure\Trie_Tree.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="resource.h" />
     <ClInclude Include="Trie Data Structure\Trie_Node.h" />
     <ClInclude Include="Trie Data Structure\Trie_Tree.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Boggle Solver SDL.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\..\..\..\Downloads\Boggle Game Icon.ico" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
