@@ -44,7 +44,11 @@
     <ResourceCompile Include="Boggle Solver SDL.rc" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="..\..\..\..\Downloads\a5gkp-afxhj-001.ico" />
     <Image Include="..\..\..\..\Downloads\Boggle Game Icon.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="Source.txt" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

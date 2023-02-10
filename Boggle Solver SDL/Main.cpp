@@ -3,7 +3,6 @@
 #include<fstream>
 #include<string>
 #include<sstream>
-//#include <SDL_image.h>
 #include"C:\SDL2-devel-2.26.1-VC\include\SDL.h"		//for SDL GUI
 #include"C:\SDL2-devel-2.26.1-VC\include\SDL_ttf.h"	//for SDL GUI Font
 #include"C:\SDL2-devel-2.26.1-VC\include\SDL2_gfxPrimitives.h"	//for SDL GUI
@@ -36,23 +35,30 @@ public:
 	void set_Box_Text_Char(char Text, int Font_Size, SDL_Color Text_Color, bool BOLD) {
 		text_for_Box = "";
 		text_for_Box = Text;
-		TTF_Font* font = TTF_OpenFont("arial.ttf", Font_Size);
+		//static TTF_Font* font = TTF_OpenFont("arial.ttf", Font_Size);
 		if (BOLD)
 			TTF_SetFontStyle(font, TTF_STYLE_BOLD);
+		else
+			TTF_SetFontStyle(font, TTF_STYLE_NORMAL);
+		Font_Size
 		SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 		buttonTextSurface = TTF_RenderText_Blended(font, text_for_Box.c_str(), Text_Color); //text Color
 		SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 		buttonTextTexture = SDL_CreateTextureFromSurface(renderer, buttonTextSurface);
 		SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+		//TTF_CloseFont(font);
 	}
 	void set_Box_Text(const char* Text, int Font_Size, SDL_Color Text_Color, bool BOLD) {
 		text_for_Box = Text;
-		TTF_Font* font = TTF_OpenFont("arial.ttf", Font_Size);
+		 //TTF_Font* font = TTF_OpenFont("arial.ttf", Font_Size);
+		TTF_SetFontSize(font, Font_Size);
 		if (BOLD)
 			TTF_SetFontStyle(font, TTF_STYLE_BOLD);
-
+		else
+			TTF_SetFontStyle(font, TTF_STYLE_NORMAL);
 		buttonTextSurface = TTF_RenderText_Blended(font, text_for_Box.c_str(), Text_Color); //text Color
 		buttonTextTexture = SDL_CreateTextureFromSurface(renderer, buttonTextSurface);
+		//TTF_CloseFont(font);
 	}
 	void set_Text_Box(const char* Text, int Font_Size, SDL_Color Text_Color, COORD Position, Size Box_Size, SDL_Color Box_Color, bool BOLD) {
 		this->Position = Position;
@@ -84,6 +90,11 @@ public:
 	COORD get_Box_Position() const { return Position; }
 	SDL_Surface* get_buttonTextSurface() const { return buttonTextSurface; }
 	SDL_Texture* get_buttonTextTexture() const { return buttonTextTexture; }
+	~Text_Box() {
+		SDL_DestroyTexture(buttonTextTexture);
+		SDL_FreeSurface(buttonTextSurface);
+		cout << "Called Text des\n";
+	}
 };
 double Text_Box::scale = 0.65;
 int Text_Box::Rounding_Radius = 20;
@@ -428,7 +439,10 @@ public:
 				SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 				Size test;
 				test.height;
-				Registered_Word_list.set_Text_Box("", 30, { 255,255,255, 255 }, { short(x - 5),short(y - 5) }, { 100,Max_Box_Height - y + 40 }, { 43,31,143,0 }, 0);
+				if (i + 1 == Longest_String)
+					Registered_Word_list.set_Text_Box("", 30, { 255,255,255, 255 }, { short(x - 5),short(y - 5) }, { 90,Max_Box_Height - y + 40 }, { 43,31,143,0 }, 0);
+				else
+					Registered_Word_list.set_Text_Box("", 30, { 255,255,255, 255 }, { short(x - 5),short(y - 5) }, { 100,Max_Box_Height - y + 40 }, { 43,31,143,0 }, 0);
 				//Registered_Word_list.set_Text_Box("", 30, { 255,255,255, 255 }, { short(x - 5),short(y - 5) }, {100,w + correction }, { 43,31,143,0 }, 0);
 				//boxSIZE: width, height
 				SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
@@ -451,6 +465,9 @@ public:
 			i++;
 			MAX_horizontal_spacing = 0;
 			//x_correction = (3 + h);
+			if (x > 840)
+				SDL_SetWindowSize(window, x + 8, 571);
+			SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
 		}
 	}
 	void Display_Current_Word() const {
@@ -498,16 +515,17 @@ public:
 		Reset_game();
 		static int index = 0;
 		{
-			Set_Board(Game_Settings[index]);
-			index++;
+			Set_Board(Game_Settings[index++]);
 			if (number_of_settings == index)
 				index = 0;
 		}
 	}
+	~Board() {
+		delete Current_Letter_Node;
+	}
 };
 int Number_of_W_Read = 0;
 void Read_Board_Letter(string game_settings[], int& number_of_setting) {
-	int i = 0;
 	number_of_setting = 0;
 	ifstream file("Board_Letter.txt");
 	if (!file) {
@@ -515,12 +533,11 @@ void Read_Board_Letter(string game_settings[], int& number_of_setting) {
 	}
 	while (!file.eof())
 	{
-		file >> game_settings[i];		//cout << temp << endl;
-		i++;
-		//Word_Dictionary.Insert(temp);
+		file >> game_settings[number_of_setting];
+		number_of_setting++;
+		cout << number_of_setting << " \t " << game_settings[number_of_setting] << endl;
 	}
-	number_of_setting = i - 1;
-	cout << "DONE READING\n";
+	cout << "Board_Letter.txt found - DONE READING\n";
 }
 void Read_fr_File_and_store_in_Trie_Tree(Trie_Tree& Word_Dictionary) {
 	string temp;
@@ -534,12 +551,14 @@ void Read_fr_File_and_store_in_Trie_Tree(Trie_Tree& Word_Dictionary) {
 		Word_Dictionary.Insert(temp);
 		Number_of_W_Read++;
 	}
-	cout << "DONE READING\n";
+	cout << "Words Dictionary.txt found - DONE READING\n";
 	//Word_Dictionary.Display();
 }
 int main(int argc, char* argv[]) {
 	SDL_Init(SDL_INIT_VIDEO);
 	TTF_Init();		font = TTF_OpenFont("arial.ttf", 100);//16  //max : 7332 /1000
+	if (font == NULL)
+		cout << "ERROR!!!\n(Arial.ttf) Font Not Found - unable to render text" << endl;
 	//SDL_SetWindowIcon(window, ICON);
 	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 	SDL_Event event;
@@ -562,7 +581,7 @@ int main(int argc, char* argv[]) {
 			if (event.type == SDL_QUIT || event.key.keysym.sym == SDLK_ESCAPE) {
 				//SDL_DestroyTexture(buttonTextTexture);
 				//SDL_FreeSurface(buttonTextSurface);
-				//Boggle_Game.~Boggle_Game();
+				Boggle_Game.~Board();
 				TTF_CloseFont(font);
 				SDL_DestroyRenderer(renderer);
 				SDL_DestroyWindow(window);

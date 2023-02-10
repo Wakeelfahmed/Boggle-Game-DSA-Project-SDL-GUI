@@ -73,5 +73,11 @@
     <Image Include="..\..\..\..\Downloads\Boggle Game Icon.ico">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="..\..\..\..\Downloads\a5gkp-afxhj-001.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="Source.txt" />
   </ItemGroup>
 </Project>
