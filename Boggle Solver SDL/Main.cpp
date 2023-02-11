@@ -8,6 +8,7 @@
 #include"C:\SDL2-devel-2.26.1-VC\include\SDL2_gfxPrimitives.h"	//for SDL GUI
 #include"Trie Data Structure/Trie_Tree.h"	//My Trie Data Structure
 #include"List/list.h"	//list for the line that appears behind Pressed Letters
+#include"Generic_List/Generic_list.h"
 int Transparency = 120;
 SDL_Window* window = SDL_CreateWindow("Boggle Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 840/*width*/, 571, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
 SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
@@ -33,24 +34,34 @@ public:
 	static int Rounding_Radius;
 	SDL_Rect Box;
 	void set_Box_Text_Char(char Text, int Font_Size, SDL_Color Text_Color, bool BOLD) {
+		if (buttonTextSurface)
+			SDL_FreeSurface(buttonTextSurface);
+		if (buttonTextTexture)
+			SDL_DestroyTexture(buttonTextTexture);
+
 		text_for_Box = "";
 		text_for_Box = Text;
-		//static TTF_Font* font = TTF_OpenFont("arial.ttf", Font_Size);
 		if (BOLD)
 			TTF_SetFontStyle(font, TTF_STYLE_BOLD);
 		else
 			TTF_SetFontStyle(font, TTF_STYLE_NORMAL);
-		Font_Size
+
 		SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 		buttonTextSurface = TTF_RenderText_Blended(font, text_for_Box.c_str(), Text_Color); //text Color
 		SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 		buttonTextTexture = SDL_CreateTextureFromSurface(renderer, buttonTextSurface);
 		SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-		//TTF_CloseFont(font);
 	}
 	void set_Box_Text(const char* Text, int Font_Size, SDL_Color Text_Color, bool BOLD) {
+		if (buttonTextSurface) {
+			SDL_FreeSurface(buttonTextSurface);
+			buttonTextSurface = nullptr;
+		}
+		if (buttonTextTexture) {
+			SDL_DestroyTexture(buttonTextTexture);
+			buttonTextTexture = nullptr;
+		}
 		text_for_Box = Text;
-		 //TTF_Font* font = TTF_OpenFont("arial.ttf", Font_Size);
 		TTF_SetFontSize(font, Font_Size);
 		if (BOLD)
 			TTF_SetFontStyle(font, TTF_STYLE_BOLD);
@@ -58,7 +69,6 @@ public:
 			TTF_SetFontStyle(font, TTF_STYLE_NORMAL);
 		buttonTextSurface = TTF_RenderText_Blended(font, text_for_Box.c_str(), Text_Color); //text Color
 		buttonTextTexture = SDL_CreateTextureFromSurface(renderer, buttonTextSurface);
-		//TTF_CloseFont(font);
 	}
 	void set_Text_Box(const char* Text, int Font_Size, SDL_Color Text_Color, COORD Position, Size Box_Size, SDL_Color Box_Color, bool BOLD) {
 		this->Position = Position;
@@ -77,9 +87,11 @@ public:
 		//scale = .65;//1.5
 		int w, h;
 		SDL_QueryTexture(buttonTextTexture, nullptr, nullptr, &w, &h);
-		double x = Box.x + (Box.w - double(w) * scale) / 2;
-		double y = Box.y + (Box.h - double(h) * scale) / 2;
-		SDL_Rect dst = { int(x), int(y), int(w * scale),int(h * scale) };
+		double x, y;
+		x = Box.x + (Box.w - double(w) * scale) / 2;
+		y = Box.y + (Box.h - double(h) * scale) / 2;
+		SDL_Rect dst;
+		dst = { int(x), int(y), int(w * scale),int(h * scale) };
 		SDL_RenderCopy(renderer, buttonTextTexture, nullptr, &dst);
 	}
 
@@ -91,8 +103,8 @@ public:
 	SDL_Surface* get_buttonTextSurface() const { return buttonTextSurface; }
 	SDL_Texture* get_buttonTextTexture() const { return buttonTextTexture; }
 	~Text_Box() {
-		SDL_DestroyTexture(buttonTextTexture);
-		SDL_FreeSurface(buttonTextSurface);
+		//SDL_DestroyTexture(buttonTextTexture);
+		//SDL_FreeSurface(buttonTextSurface);
 		cout << "Called Text des\n";
 	}
 };
@@ -120,9 +132,7 @@ public:
 		return (x >= Main_Text_Box.get_Box_Position().X && x < Main_Text_Box.get_Box_Position().X + Main_Text_Box.get_Box_Size().height && y >= Main_Text_Box.get_Box_Position().Y && y < Main_Text_Box.get_Box_Position().Y + Main_Text_Box.get_Box_Size().width);
 	}
 	bool operator==(Button Button2) {
-		if (Main_Text_Box.get_Box_Position().Y == Button2.Main_Text_Box.get_Box_Position().Y && Main_Text_Box.get_Box_Position().X == Button2.Main_Text_Box.get_Box_Position().X)
-			return 1;
-		return 0;
+		return (Main_Text_Box.get_Box_Position().Y == Button2.Main_Text_Box.get_Box_Position().Y && Main_Text_Box.get_Box_Position().X == Button2.Main_Text_Box.get_Box_Position().X);
 	}
 	void Diplay_Shadow() const {
 		SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
@@ -154,9 +164,11 @@ public:
 
 		int w, h;
 		SDL_QueryTexture(Main_Text_Box.get_buttonTextTexture(), nullptr, nullptr, &w, &h);
-		double x = Main_Text_Box.get_Main_Box().x + (Main_Text_Box.get_Main_Box().w - double(w) * Main_Text_Box.scale) / 2;
-		double y = Main_Text_Box.get_Main_Box().y + (Main_Text_Box.get_Main_Box().h - double(h) * Main_Text_Box.scale) / 2;
-		SDL_Rect dst = { int(x), int(y), int(w * Main_Text_Box.scale),int(h * Main_Text_Box.scale) };
+		double x, y;
+		x = Main_Text_Box.get_Main_Box().x + (Main_Text_Box.get_Main_Box().w - double(w) * Main_Text_Box.scale) / 2;
+		y = Main_Text_Box.get_Main_Box().y + (Main_Text_Box.get_Main_Box().h - double(h) * Main_Text_Box.scale) / 2;
+		SDL_Rect dst;
+		dst = { int(x), int(y), int(w * Main_Text_Box.scale),int(h * Main_Text_Box.scale) };
 		SDL_RenderCopy(renderer, Main_Text_Box.get_buttonTextTexture(), nullptr, &dst);
 	}
 	void Display_Text_Button() {
@@ -206,6 +218,7 @@ public:
 	bool get_IsActive_Status()const { return isActive; }
 
 };
+Generic_list <string> Game_Settings_List;
 class Board {
 	Button Alphabets[16]; //using 1D array as it faster than 2D
 	int Score;
@@ -300,7 +313,7 @@ public:
 		}
 	}
 	void Display_Pressed_Buttons_LINE() {
-		COORD button1, button2;
+		static COORD button1, button2;
 		if (Buttons_coord.Number_of_Nodes() <= 1)
 			return;
 		for (int i = 1; i < Buttons_coord.Number_of_Nodes(); i++)
@@ -389,7 +402,7 @@ public:
 	void Show_Registered_Words() {
 		if (Score == 0)
 			return;
-		int smallest = INT_MAX, Longest_String = 0;
+		int smallest = INT_MAX; int Longest_String = 0;
 		Word_Dictionary_Trie_Tree.get_smallest_longest_string(Word_Dictionary_Trie_Tree.get_Tree_Root(), "", smallest, Longest_String);
 		if (smallest == Longest_String) {
 		}
@@ -402,7 +415,7 @@ public:
 		Registered_Word_list.set_Text_Box("", 30, { 255,255,255, 255 }, { 450,150 }, { 100,324 }, { 43,31,143,0 }, 0);
 		int x = Registered_Word_list.get_Box_Position().X + 5 + x_correction, y = Registered_Word_list.get_Box_Position().Y + 5;
 		COORD org = { x ,y };
-		int w, h = 0;
+		static int w, h = 0;
 		bool is_First_Word = 1;
 		while (i != Longest_String) {
 			Word_Dictionary_Trie_Tree.Display_Registered_Word(Word_Dictionary_Trie_Tree.get_Tree_Root(), "", text, i);
@@ -437,8 +450,6 @@ public:
 				if (Max_Box_Height < y)
 					Max_Box_Height = y;
 				SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-				Size test;
-				test.height;
 				if (i + 1 == Longest_String)
 					Registered_Word_list.set_Text_Box("", 30, { 255,255,255, 255 }, { short(x - 5),short(y - 5) }, { 90,Max_Box_Height - y + 40 }, { 43,31,143,0 }, 0);
 				else
@@ -477,8 +488,9 @@ public:
 		Current_Word_Board.Display_Text_Box({ 0 }, 0);
 	}
 	void Display_Score() const {
-		string score_mess = "Score " + to_string(Score);
-		COORD Center;
+		static string score_mess;
+		score_mess = "Score " + to_string(Score);
+		static COORD Center;
 		Center.X = (Alphabets[1].get_Position().X + Alphabets[2].get_Position().X) / 2 - 20;
 		Center.Y = (Alphabets[1].get_Position().Y + Alphabets[2].get_Position().Y) / 2 - 73;
 		Score_Board.set_Text_Box(score_mess.c_str(), 40, { 255,255,255,255 }, Center, { 150,60 }, { 75, 75, 75, 255 }, 0);
@@ -511,46 +523,55 @@ public:
 
 	}
 	int get_Game_Score() const { return Score; }
-	void New_Game(string Game_Settings[], int number_of_settings) {
+	void New_Game() {
 		Reset_game();
-		static int index = 0;
-		{
-			Set_Board(Game_Settings[index++]);
-			if (number_of_settings == index)
-				index = 0;
-		}
+		static Generic_Node <string>* Temp = Game_Settings_List.get_head();
+		Set_Board(Temp->get_Data());
+		Temp = Temp->next;
 	}
 	~Board() {
 		delete Current_Letter_Node;
 	}
 };
+void delete_trie(Trie_Node* node) {
+	if (node == nullptr) return;
+
+	// Recursively delete all children
+	for (int i = 0; i < ALPHABET_SIZE; i++) {
+		cout << "deleting " << char('a' + i);
+		delete_trie(node->get_child(i));
+	}
+
+	// Delete the current node
+	delete node;
+}
 int Number_of_W_Read = 0;
-void Read_Board_Letter(string game_settings[], int& number_of_setting) {
-	number_of_setting = 0;
+void Read_Board_Letter() {
 	ifstream file("Board_Letter.txt");
 	if (!file) {
 		cout << "File(Board_Letter.txt) Not Found !!\n"; _getch(); exit(1);
 	}
-	while (!file.eof())
-	{
-		file >> game_settings[number_of_setting];
-		number_of_setting++;
-		cout << number_of_setting << " \t " << game_settings[number_of_setting] << endl;
+	string* Temp = new string;
+	while (!file.eof()) {
+		file >> *Temp;
+		Game_Settings_List.insert_end(*Temp);
 	}
+	delete Temp;
 	cout << "Board_Letter.txt found - DONE READING\n";
 }
 void Read_fr_File_and_store_in_Trie_Tree(Trie_Tree& Word_Dictionary) {
-	string temp;
 	ifstream file("Words Dictionary.txt");
 	if (!file) {
 		cout << "File(Words Dictionary.txt) Not Found !!\n"; _getch(); exit(1);
 	}
+	string* temp = new string;
 	while (!file.eof())
 	{
-		file >> temp;		//cout << temp << endl;
-		Word_Dictionary.Insert(temp);
+		file >> *temp;		//cout << temp << endl;
+		Word_Dictionary.Insert(*temp);
 		Number_of_W_Read++;
 	}
+	delete temp;
 	cout << "Words Dictionary.txt found - DONE READING\n";
 	//Word_Dictionary.Display();
 }
@@ -559,7 +580,6 @@ int main(int argc, char* argv[]) {
 	TTF_Init();		font = TTF_OpenFont("arial.ttf", 100);//16  //max : 7332 /1000
 	if (font == NULL)
 		cout << "ERROR!!!\n(Arial.ttf) Font Not Found - unable to render text" << endl;
-	//SDL_SetWindowIcon(window, ICON);
 	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 	SDL_Event event;
 	Board Boggle_Game;
@@ -570,11 +590,10 @@ int main(int argc, char* argv[]) {
 	New_Game_Button.Set_Button("New Game", { 255,255,255,255 }, { 23 + 244,507 }, { 140, 50 }, 40, { 255, 128, 0, 255 }, 0);
 	Invalid_Word_Mess.set_Text_Box("Invalid Word", 40, { 255,255,255,255 }, { 470, 70 }, { 150,60 }, { 255,0,0, 255 }, 0);
 	Players Game_Player;
-	string Player_name;	int number_of_setting = 0;
+	string Player_name;
 	Word_Dictionary_Trie_Tree.Write_SORTED_To_File_fr_Trie_Tree();
-	string game_setting[5];
-	Read_Board_Letter(game_setting, number_of_setting);
-	Boggle_Game.New_Game(game_setting, number_of_setting);
+	Read_Board_Letter();
+	Boggle_Game.New_Game();
 	int MouseX, MouseY;
 	while (true) {
 		while (SDL_PollEvent(&event)) {
@@ -583,6 +602,8 @@ int main(int argc, char* argv[]) {
 				//SDL_FreeSurface(buttonTextSurface);
 				Boggle_Game.~Board();
 				TTF_CloseFont(font);
+				TTF_Quit();
+				delete_trie(Word_Dictionary_Trie_Tree.get_Tree_Root());
 				SDL_DestroyRenderer(renderer);
 				SDL_DestroyWindow(window);
 				SDL_Quit();
@@ -617,7 +638,7 @@ int main(int argc, char* argv[]) {
 				}
 				if (New_Game_Button.Check_if_Mouse_in_Button_Area(MouseX, MouseY)) {
 					//RELEASED
-					Boggle_Game.New_Game(game_setting, number_of_setting);
+					Boggle_Game.New_Game();
 					New_Game_Button.set_Button_Pushed(0);
 					break;
 				}

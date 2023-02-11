@@ -36,6 +36,8 @@
     <ClCompile Include="Trie Data Structure\Trie_Tree.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Generic_List\Generic_list.h" />
+    <ClInclude Include="Generic_List\Generic_Node.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Trie Data Structure\Trie_Node.h" />
     <ClInclude Include="Trie Data Structure\Trie_Tree.h" />
