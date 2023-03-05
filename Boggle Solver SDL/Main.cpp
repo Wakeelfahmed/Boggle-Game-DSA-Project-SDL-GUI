@@ -5,7 +5,7 @@
 #include<sstream>
 #include"C:\SDL2-devel-2.26.1-VC\include\SDL.h"		//for SDL GUI
 #include"C:\SDL2-devel-2.26.1-VC\include\SDL_ttf.h"	//for SDL GUI Font
-#include"C:\SDL2-devel-2.26.1-VC\include\SDL2_gfxPrimitives.h"	//for SDL GUI
+#include"C:\SDL2-devel-2.26.1-VC\include\SDL2_gfxPrimitives.h"	//for Advanced SDL GUI
 #include"Trie Data Structure/Trie_Tree.h"	//My Trie Data Structure
 #include"List/list.h"	//list for the line that appears behind Pressed Letters
 #include"Generic_List/Generic_list.h"
@@ -33,40 +33,29 @@ public:
 	static double scale;
 	static int Rounding_Radius;
 	SDL_Rect Box;
-	void set_Box_Text_Char(char Text, int Font_Size, SDL_Color Text_Color, bool BOLD) {
+	void set_Box_Text_Char(char Text, int Font_Size, SDL_Color Text_Color, int style) {
 		if (buttonTextSurface)
 			SDL_FreeSurface(buttonTextSurface);
 		if (buttonTextTexture)
 			SDL_DestroyTexture(buttonTextTexture);
-
 		text_for_Box = "";
 		text_for_Box = Text;
-		if (BOLD)
-			TTF_SetFontStyle(font, TTF_STYLE_BOLD);
-		else
-			TTF_SetFontStyle(font, TTF_STYLE_NORMAL);
-
+		TTF_SetFontSize(font, Font_Size);
+		TTF_SetFontStyle(font, style);
 		SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 		buttonTextSurface = TTF_RenderText_Blended(font, text_for_Box.c_str(), Text_Color); //text Color
 		SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 		buttonTextTexture = SDL_CreateTextureFromSurface(renderer, buttonTextSurface);
 		SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 	}
-	void set_Box_Text(const char* Text, int Font_Size, SDL_Color Text_Color, bool BOLD) {
-		if (buttonTextSurface) {
+	void set_Box_Text(const char* Text, int Font_Size, SDL_Color Text_Color, int style) {
+		if (buttonTextSurface)
 			SDL_FreeSurface(buttonTextSurface);
-			buttonTextSurface = nullptr;
-		}
-		if (buttonTextTexture) {
+		if (buttonTextTexture)
 			SDL_DestroyTexture(buttonTextTexture);
-			buttonTextTexture = nullptr;
-		}
 		text_for_Box = Text;
 		TTF_SetFontSize(font, Font_Size);
-		if (BOLD)
-			TTF_SetFontStyle(font, TTF_STYLE_BOLD);
-		else
-			TTF_SetFontStyle(font, TTF_STYLE_NORMAL);
+		TTF_SetFontStyle(font, style);
 		buttonTextSurface = TTF_RenderText_Blended(font, text_for_Box.c_str(), Text_Color); //text Color
 		buttonTextTexture = SDL_CreateTextureFromSurface(renderer, buttonTextSurface);
 	}
@@ -129,7 +118,10 @@ public:
 	void set_Button_Pushed(bool Button_pushed) { this->Button_Pushed = Button_pushed; }
 	void set_Button_Hovered(bool Button_hovered) { this->Button_Hovered = Button_hovered; }
 	bool Check_if_Mouse_in_Button_Area(int x, int y) const {
-		return (x >= Main_Text_Box.get_Box_Position().X && x < Main_Text_Box.get_Box_Position().X + Main_Text_Box.get_Box_Size().height && y >= Main_Text_Box.get_Box_Position().Y && y < Main_Text_Box.get_Box_Position().Y + Main_Text_Box.get_Box_Size().width);
+		return (x >= Main_Text_Box.get_Box_Position().X
+			&& x < Main_Text_Box.get_Box_Position().X + Main_Text_Box.get_Box_Size().height
+			&& y >= Main_Text_Box.get_Box_Position().Y
+			&& y < Main_Text_Box.get_Box_Position().Y + Main_Text_Box.get_Box_Size().width);
 	}
 	bool operator==(Button Button2) {
 		return (Main_Text_Box.get_Box_Position().Y == Button2.Main_Text_Box.get_Box_Position().Y && Main_Text_Box.get_Box_Position().X == Button2.Main_Text_Box.get_Box_Position().X);
@@ -400,8 +392,11 @@ public:
 		}
 	}
 	void Show_Registered_Words() {
-		if (Score == 0)
+		static bool new_game = 0;
+		if (Score == 0) {
+			new_game = true;
 			return;
+		}
 		int smallest = INT_MAX; int Longest_String = 0;
 		Word_Dictionary_Trie_Tree.get_smallest_longest_string(Word_Dictionary_Trie_Tree.get_Tree_Root(), "", smallest, Longest_String);
 		if (smallest == Longest_String) {
@@ -420,17 +415,21 @@ public:
 		while (i != Longest_String) {
 			Word_Dictionary_Trie_Tree.Display_Registered_Word(Word_Dictionary_Trie_Tree.get_Tree_Root(), "", text, i);
 			// Get the size of the text
-			TTF_SizeText(TTF_OpenFont("arial.ttf", 25), "", &w, &h);
+			TTF_SetFontSize(font, 25);
+			TTF_SetFontStyle(font, TTF_STYLE_NORMAL);
+			TTF_SizeText(font, "", &w, &h);
 			istringstream ss(text);
 			int MAX_horizontal_spacing = 0;	static int Max_Box_Height = y;
-			if (Score == 0)
-				Max_Box_Height = y + 15;
+			if (Score == 0 || new_game == 1) {
+				Max_Box_Height = y;
+				new_game = 0;
+			}
 			string word;
 			int correction = 0;
 			Registered_Word_list.Rounding_Radius = 15;
 			while (getline(ss, word, ' ')) {
 
-				SDL_Surface* surface = TTF_RenderText_Blended(TTF_OpenFont("arial.ttf", 25), word.c_str(), { 255,255,255,255 });
+				SDL_Surface* surface = TTF_RenderText_Blended(font, word.c_str(), { 255,255,255,255 });
 				SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
 				SDL_FreeSurface(surface);
 				//if (word.size() <= 4 || is_First_Word) {
@@ -449,11 +448,17 @@ public:
 					MAX_horizontal_spacing = w;
 				if (Max_Box_Height < y)
 					Max_Box_Height = y;
+				int Box_Width = 100;
 				SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-				if (i + 1 == Longest_String)
-					Registered_Word_list.set_Text_Box("", 30, { 255,255,255, 255 }, { short(x - 5),short(y - 5) }, { 90,Max_Box_Height - y + 40 }, { 43,31,143,0 }, 0);
+				if (is_First_Word || i + 1 == Longest_String)
+					Registered_Word_list.Rounding_Radius = 20;
 				else
-					Registered_Word_list.set_Text_Box("", 30, { 255,255,255, 255 }, { short(x - 5),short(y - 5) }, { 100,Max_Box_Height - y + 40 }, { 43,31,143,0 }, 0);
+					Registered_Word_list.Rounding_Radius = 0;
+				if (i + 1 == Longest_String) {
+					Registered_Word_list.set_Text_Box("", 25, { 255,255,255, 255 }, { short(x - 5),short(y - 5) }, { 90,Max_Box_Height - y + 40 }, { 43,31,143,0 }, 0);
+				}
+				else
+					Registered_Word_list.set_Text_Box("", 25, { 255,255,255, 255 }, { short(x - 5),short(y - 5) }, { 100,Max_Box_Height - y + 40}, {43,31,143,0}, 0);
 				//Registered_Word_list.set_Text_Box("", 30, { 255,255,255, 255 }, { short(x - 5),short(y - 5) }, {100,w + correction }, { 43,31,143,0 }, 0);
 				//boxSIZE: width, height
 				SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
@@ -466,19 +471,21 @@ public:
 			}
 			is_First_Word = 0;
 			Registered_Word_list.Rounding_Radius = 20;
+			if (text != "")
+				x = (x + MAX_horizontal_spacing + 10), y = org.Y;
+				//x = (x + MAX_horizontal_spacing + 4 + i + 2 / 2), y = org.Y;
+			              //x = (x + MAX_horizontal_spacing + i/2), y = org.Y;
+			//else
+				//x = (x + MAX_horizontal_spacing + 4 + i + 2 / 2 + 1), y = org.Y;
+			              //x = (x + MAX_horizontal_spacing + 12), y = org.Y;
 			text = "";
-			if (word == "")
-				x = (x + MAX_horizontal_spacing + i + 1 / 2), y = org.Y;
-			//x = (x + MAX_horizontal_spacing + i/2), y = org.Y;
-			else
-				x = (x + MAX_horizontal_spacing + i + 1 / 2), y = org.Y;
-			//x = (x + MAX_horizontal_spacing + 12), y = org.Y;
 			i++;
 			MAX_horizontal_spacing = 0;
 			//x_correction = (3 + h);
-			if (x > 840)
+			if (x > 840) {
 				SDL_SetWindowSize(window, x + 8, 571);
-			SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+				SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+			}
 		}
 	}
 	void Display_Current_Word() const {
@@ -595,6 +602,10 @@ int main(int argc, char* argv[]) {
 	Read_Board_Letter();
 	Boggle_Game.New_Game();
 	int MouseX, MouseY;
+	bool Changes_Made = 1;
+	Rotate_Button.Display_Text_Button();
+	Reset_Button.Display_Text_Button();
+	New_Game_Button.Display_Text_Button();
 	while (true) {
 		while (SDL_PollEvent(&event)) {
 			if (event.type == SDL_QUIT || event.key.keysym.sym == SDLK_ESCAPE) {
@@ -614,9 +625,27 @@ int main(int argc, char* argv[]) {
 			{
 				SDL_GetMouseState(&MouseX, &MouseY);
 				Boggle_Game.Check_for_Hovering(MouseX, MouseY);
-				Rotate_Button.set_Button_Hovered(Rotate_Button.Check_if_Mouse_in_Button_Area(MouseX, MouseY));
-				Reset_Button.set_Button_Hovered(Reset_Button.Check_if_Mouse_in_Button_Area(MouseX, MouseY));
-				New_Game_Button.set_Button_Hovered(New_Game_Button.Check_if_Mouse_in_Button_Area(MouseX, MouseY));
+				//Rotate_Button.set_Button_Hovered(Rotate_Button.Check_if_Mouse_in_Button_Area(MouseX, MouseY));
+				//Reset_Button.set_Button_Hovered(Reset_Button.Check_if_Mouse_in_Button_Area(MouseX, MouseY));
+				//New_Game_Button.set_Button_Hovered(New_Game_Button.Check_if_Mouse_in_Button_Area(MouseX, MouseY));
+				if (Rotate_Button.Check_if_Mouse_in_Button_Area(MouseX, MouseY) != Rotate_Button.get_Button_Hovered())
+				{
+					Changes_Made = 1;
+					Rotate_Button.set_Button_Hovered(Rotate_Button.Check_if_Mouse_in_Button_Area(MouseX, MouseY));
+					Rotate_Button.Display_Text_Button();
+				}
+				else if (Reset_Button.Check_if_Mouse_in_Button_Area(MouseX, MouseY) != Reset_Button.get_Button_Hovered())
+				{
+					Changes_Made = 1;
+					Reset_Button.set_Button_Hovered(Reset_Button.Check_if_Mouse_in_Button_Area(MouseX, MouseY));
+					Reset_Button.Display_Text_Button();
+				}
+				else if (New_Game_Button.Check_if_Mouse_in_Button_Area(MouseX, MouseY) != New_Game_Button.get_Button_Hovered())
+				{
+					Changes_Made = 1;
+					New_Game_Button.set_Button_Hovered(New_Game_Button.Check_if_Mouse_in_Button_Area(MouseX, MouseY));
+					New_Game_Button.Display_Text_Button();
+				}
 			}
 			if (event.type == SDL_MOUSEBUTTONUP)	//mouse click on Button
 			{
@@ -624,22 +653,28 @@ int main(int argc, char* argv[]) {
 				if (Boggle_Game.Check_for_Letters_input(MouseX, MouseY)) {
 					break;
 				}
-				if (Rotate_Button.Check_if_Mouse_in_Button_Area(MouseX, MouseY)) {
+				else if (Rotate_Button.Check_if_Mouse_in_Button_Area(MouseX, MouseY)) {
 					//RELEASED
 					Boggle_Game.Board_rotate();
 					Rotate_Button.set_Button_Pushed(0);
+					Rotate_Button.Display_Text_Button();
+					Changes_Made = 1;
 					break;
 				}
-				if (Reset_Button.Check_if_Mouse_in_Button_Area(MouseX, MouseY)) {
+				else if (Reset_Button.Check_if_Mouse_in_Button_Area(MouseX, MouseY)) {
 					//RELEASED
 					Boggle_Game.Reset_game();
 					Reset_Button.set_Button_Pushed(0);
+					Reset_Button.Display_Text_Button();
+					Changes_Made = 1;
 					break;
 				}
-				if (New_Game_Button.Check_if_Mouse_in_Button_Area(MouseX, MouseY)) {
+				else if (New_Game_Button.Check_if_Mouse_in_Button_Area(MouseX, MouseY)) {
 					//RELEASED
 					Boggle_Game.New_Game();
 					New_Game_Button.set_Button_Pushed(0);
+					New_Game_Button.Display_Text_Button();
+					Changes_Made = 1;
 					break;
 				}
 			}
@@ -649,23 +684,26 @@ int main(int argc, char* argv[]) {
 				if (Rotate_Button.Check_if_Mouse_in_Button_Area(MouseX, MouseY)) {
 					Rotate_Button.set_Button_Pushed(!Rotate_Button.get_Button_Pushed());
 					Rotate_Button.Display_Text_Button();
+					Changes_Made = 1;
 					break;
 				}
 				if (Reset_Button.Check_if_Mouse_in_Button_Area(MouseX, MouseY)) {
 					Reset_Button.set_Button_Pushed(!Reset_Button.get_Button_Pushed());
 					Reset_Button.Display_Text_Button();
+					Changes_Made = 1;
 					break;
 				}
 				if (New_Game_Button.Check_if_Mouse_in_Button_Area(MouseX, MouseY)) {
 					New_Game_Button.set_Button_Pushed(!New_Game_Button.get_Button_Pushed());
 					New_Game_Button.Display_Text_Button();
+					Changes_Made = 1;
 					break;
 				}
 			}
 		}
-		SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 		SDL_SetRenderDrawColor(renderer, 130, 214, 240, 50);
 		SDL_RenderClear(renderer);
+		SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 		Boggle_Game.Display_Board();
 		Rotate_Button.Display_Text_Button();
 		Reset_Button.Display_Text_Button();
@@ -675,6 +713,11 @@ int main(int argc, char* argv[]) {
 		Boggle_Game.Display_Score();
 		if (Boggle_Game.get_Game_Score() > Game_Player.get_high_score())
 			Game_Player.update_high_Score(Boggle_Game.get_Game_Score()); //updating Player high score at runtime
-		SDL_RenderPresent(renderer);	//Final Output to SDL window
+		//if (Changes_Made)
+		{
+			SDL_RenderPresent(renderer);	//Final Output to SDL window
+			//cout << "Printing\n";
+		}
+		//Changes_Made = 0;
 	}
 }
